@@ -1,0 +1,400 @@
+<?php
+use Facebook\FacebookSession;
+use Facebook\FacebookRequest;
+//use wall addclass masonry item
+
+/* 
+Params:
+    &twitterToken: Twitter API Token
+    &twitterTokenSecret: Twitter API Token secret
+    &twitterConsKey: Twitter API consumer key
+    &twitterConsSecret: Twitter API consumer secret
+    &twitterTag: Twitter tag/username to search for (with # or @). Commadelimeted tags for OR operator use + delimiter as AND operator.
+    &maxTweets: (optional) limit amount of tweets inside result
+    
+    &instaClientID: The client_id for the Instagram API
+    &instagramTag: Instagram tag to search for (without #)
+    
+    &youtubeUser: Youtube username
+    &youtubeAPIKey: Your Youtube API key
+    &youtubePlaylistID: Youtube playlist ID (optional), if not set an additional request will be done to get the youtubeplaylistid based on the username
+    
+    &facebookAppID: Facebook APP ID
+    &facebookAppSecret: Facebook APP secret
+    &facebookPage: Facebook page name
+    
+    &showTwitter: 0 or 1. Include twitterfeed or not.
+    &showInstagram: 0 or 1. Include instagramfeed or not.
+    &showYoutube: 0 or 1. Include youtube feed or not.
+    &showFacebook: 0 or 1. Include facebookfeed or not.
+    &showWall: 0 or 1, defaults to 0. Display social feed wall. If is set, two jquery scripts will be added for the social wall functionality
+    
+    &limit: limit amount of total social feed
+    &cache: 1 or 0, defaults to 0. Cache the socialfeed output
+    &cachetime: cachetime in seconds.
+    &cachekey: Key used for caching. Defaults to socialfeed (optional)
+    &filters=`1` 1 or 0, defaults to 1 show socialaccounts filter below the widget
+    
+    &twitterTpl: chunk to use for Twitter
+    &instagramTpl: chunk to use for Instagram
+    &youtubeTpl: chunk to use for youtube
+    &facebookTpl: chunk to use for facebook
+    &outerClass: Class for the outer div
+    &columnClass: Class for the output feed chunks
+*/
+$assetsUrl          = 'assets/components/socialfeed/';
+
+$output             = array();
+$instaOutput        = array();
+$twitterOutput      = array();
+$youtubeOutput      = array();
+$facebookOutput     = array();
+
+$twitterTpl         = (isset($twitterTpl)) ? $twitterTpl : 'sfTwitterTpl';
+$instagramTpl       = (isset($instagramTpl)) ? $instagramTpl : 'sfInstagramTpl';
+$youtubeTpl         = (isset($youtubeTpl)) ? $youtubeTpl : 'sfYoutubeTpl';
+$facebookTpl        = (isset($facebookTpl)) ? $facebookTpl : 'sfFacebookTpl';
+
+$outerClass         = (isset($outerClass)) ? '<div class="'.$outerClass.'">' : '';
+$outerClassEnd      = (isset($outerClass)) ? '</div>' : '';
+$cache              = (isset($cache)) ? $cache : 0;
+$cachetime          = (isset($cachetime)) ? $cachetime : 3600;
+$cachekey           = (isset($cachekey)) ? $cachekey : 'socialfeed';
+
+$columnClass        = (isset($columnClass)) ? $columnClass . ' sf-column' : '';
+
+$showTwitter        = (isset($showTwitter)) ? $showTwitter : 1;
+$showInstagram      = (isset($showInstagram)) ? $showInstagram : 1;
+$showYoutube        = (isset($showYoutube)) ? $showYoutube : 1;
+$showFacebook       = (isset($showFacebook)) ? $showFacebook : 1;
+
+$showWall           = (isset($showWall)) ? $showWall : 0;
+$filters            = (isset($filters)) ? $filters : 1;
+$limit              = (isset($limit)) ? $limit : '';
+
+function calcTimeago($timestamp){
+    $dateDiff       = time() - $timestamp;
+    $numDays        = floor(abs($dateDiff)/60/60/24);
+    $numHours       = floor(abs($dateDiff)/60/60);
+    $numMinutes     = floor(abs($dateDiff)/60);
+            
+    if($numDays != 0){
+        $dayText    = ($numDays == 1) ? 'day' : 'days';
+        $timeago    = $numDays . ' ' . $dayText;
+    }
+    elseif ($numHours != 0){
+        $hourText   = ($numHours == 1) ? 'hour' : 'hours';
+        $timeago    = $numHours . ' ' . $hourText;
+    }
+    else {
+        $minText    = ($numHours == 1) ? 'minute' : 'minutes';
+        $timeago    = $numMinutes . ' ' . $minText;
+    }
+    return $timeago;
+}
+
+if($cache == 1){
+    $options = array(
+      xPDO::OPT_CACHE_KEY => $cachekey,
+    );
+    $modx->cacheManager->set($cachekey, implode("\n", $output), $cachetime, $options);
+    
+    $cache = $modx->cacheManager->get($cachekey, $options);
+    if(!empty($cache)){
+        return $cache;
+    }
+}
+
+if(version_compare(PHP_VERSION, '5.4.0', '<')) {
+    $phpversion = false;
+}else {
+    $phpversion = true;
+}
+
+//showFacebook aan, php versie correct en facebookname isset
+if($showFacebook == 1 && isset($facebookPage) && isset($facebookAppID) && isset($facebookAppSecret) && $phpversion === true){
+    define('FACEBOOK_SDK_V4_SRC_DIR', MODX_CORE_PATH.'components/socialfeed/fb-php-sdk-v4/src/Facebook/');
+    require MODX_CORE_PATH.'components/socialfeed/fb-php-sdk-v4/autoload.php';
+    
+    FacebookSession::setDefaultApplication($facebookAppID, $facebookAppSecret);
+    // If you're making app-level requests:
+    $session = FacebookSession::newAppSession();
+    
+    // To validate the session:
+    try {
+      $session->validate();
+    
+    } catch (FacebookRequestException $ex) {
+      // Session not valid, Graph API returned an exception with the reason.
+      echo $ex->getMessage();
+    } catch (\Exception $ex) {
+      // Graph API returned info, but it may mismatch the current app or have expired.
+      echo $ex->getMessage();
+    }
+    
+    $request = new FacebookRequest(
+      $session,
+      'GET',
+      '/'.$facebookPage.'/feed?limit='.$limit
+    );
+    
+    $response = $request->execute();
+    $graphObject = $response->getGraphObject();
+    $getPosts =  $graphObject->getProperty('data');
+    $fbposts = $getPosts->asArray();
+       
+    foreach($fbposts as $post){
+        
+        $dateObject = new DateTime($post->created_time);
+        $timestamp = $dateObject->getTimestamp();
+        $timeago = calcTimeago($timestamp);
+        
+        $name = htmlentities($post->from->name, ENT_NOQUOTES, 'UTF-8');
+        //exit($name);
+        $content = preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@', '<a href="$1" target="_blank">$1</a>', $post->message);
+        $content = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1<span class="hashtag">#\2</span>', $content);
+        
+        if($post->status_type == 'added_photos'){
+            $photo = 'https://graph.facebook.com/' . $post->object_id . '/picture?type=normal';
+        }
+        else {
+            $photo = '';
+        }
+        if($name == 'TEDxFrysl&acirc;n'){
+          
+            $facebookOutput[] = array(
+                    'type'            => 'facebook',
+                    'published'       => $timestamp,
+                    'timeago'         => $timeago,
+                    'columnclass'     => $columnClass,
+                    'name'            => $name,
+                    'link'            => $post->link,
+                    'image'           => $photo,
+                    'content'         => $content
+                );
+          
+        }
+    }    
+}    
+
+if(isset($instaClientID) && $showInstagram == 1){
+    $instagramTag = str_replace('#', '',$instagramTag);
+    $insta = file_get_contents('https://api.instagram.com/v1/tags/'.$instagramTag.'/media/recent?client_id=' . $instaClientID.'&count='.$limit);
+    $insta = $modx->fromJSON($insta);
+   
+    foreach($insta['data'] as $instaPost){
+        $content = $instaPost['caption']['text'];
+        //$content = utf8_encode($content);
+        $content = htmlentities($content, ENT_NOQUOTES, 'UTF-8');
+        $content = preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@', '<a href="$1" target="_blank">$1</a>', $content);
+        $content = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1<span class="hashtag">#\2</span>', $content);
+        $timeago = calcTimeago($instaPost['created_time']);
+       
+        $instaOutput[] = array(
+            'type'            => 'instagram',
+            'published'       => $instaPost['created_time'],
+            'timeago'         => $timeago,
+            'columnclass'     => $columnClass,
+            'name'            => $instaPost['user']['full_name'],
+            'username'        => $instaPost['user']['username'],
+            'link'            => $instaPost['link'],
+            'imageLow'        => $instaPost['images']['low_resolution']['url'],
+            'thumb'           => $instaPost['images']['thumbnail']['url'],
+            'image'           => $instaPost['images']['standard_resolution']['url'],
+            'content'         => $content
+        );
+    }
+}
+
+if(isset($twitterToken) && isset($twitterTokenSecret) && isset($twitterConsKey) && isset($twitterConsSecret) && $showTwitter == 1){
+    //Twitter
+    require_once(MODX_CORE_PATH.'components/socialfeed/TwitterAPIExchange.php');
+    
+    $settings = array(
+        'oauth_access_token' => $twitterToken,
+        'oauth_access_token_secret' => $twitterTokenSecret,
+        'consumer_key' => $twitterConsKey,
+        'consumer_secret' => $twitterConsSecret
+    );
+    
+    $twitterLimit = isset($maxTweets) ? $maxTweets : $limit;
+    $twitterTag = str_replace(","," OR ", $twitterTag);
+    $twitterTag = urlencode($twitterTag);
+    $url = 'https://api.twitter.com/1.1/search/tweets.json';
+    $getfield = '?q='.$twitterTag.'&count='.$twitterLimit;
+    $requestMethod = 'GET';
+    $twitter = new TwitterAPIExchange($settings);
+    $tweets = $modx->fromJSON($twitter->setGetfield($getfield)->buildOauth($url, $requestMethod)->performRequest());
+    $tweets = $tweets['statuses'];
+    //print_r($tweets);
+    //exit();
+    if($tweets){
+        foreach($tweets as $tweet){
+            $entities = array();
+            
+            $dateObject = new DateTime($tweet['created_at']);
+            $timestamp = $dateObject->getTimestamp();
+         
+            $content = $tweet['text'];
+            
+            $content = htmlentities($content, ENT_NOQUOTES, 'UTF-8');
+            $content = html_entity_decode($content);
+            $content = str_replace('&hellip;','',$content);
+
+            if(is_array($tweet['entities']['urls'])){
+                foreach($tweet['entities']['urls'] as $e){
+                    $temp["start"] = $e['indices'][0];
+                    $temp["end"] = $e['indices'][1];
+                    
+                    $e['display_url'] = htmlentities($e['display_url'], ENT_NOQUOTES, 'UTF-8');
+                
+                    $temp["replacement"] = "<a href='".$e['expanded_url']."' target='_blank'>".$e['display_url']."</a>";
+                    $entities[] = $temp;
+                }
+            }
+            usort($entities, function($a,$b){return($b["start"]-$a["start"]);});
+                
+            foreach($entities as $item){
+                $content = substr_replace($content, $item["replacement"], $item["start"], $item["end"] - $item["start"]);
+            }
+               
+            //$content = htmlentities($content, ENT_NOQUOTES, 'UTF-8');
+            $content = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1<span class="hashtag">#\2</span>', $content);
+            //$content = utf8_encode($content);
+           // $content = preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@', '<a href="$1" target="_blank">$1</a>', $content);
+            //$content = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1<span class="hashtag">#\2</span>', $content);
+            
+            $timeago = calcTimeago($timestamp);
+            
+            $twitterOutput[] = array(
+                'type'              => 'twitter',
+                'published'         => $timestamp,
+                'columnclass'       => $columnClass,
+                'timeago'           => $timeago,
+                'link'              => 'https://twitter.com/' . $tweet['user']['screen_name'],
+                'test'              => date('d/m/Y', $timestamp),
+                'name'              => $tweet['user']['name'],
+                'username'          => $tweet['user']['screen_name'],
+                'content'           => $content
+            );
+        }
+    }
+}
+
+$youtubeAPIKey = trim($youtubeAPIKey);
+if(!isset($youtubePlaylistID) && isset($youtubeUser) && isset($youtubeAPIKey) && $showYoutube == 1){
+    
+    
+ //  
+    
+    $getYoutubePlaylistID = file_get_contents('https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername=' . trim($youtubeUser) . '&key=' . $youtubeAPIKey);
+    $getYoutubePlaylistID = $modx->fromJSON($getYoutubePlaylistID);
+    
+    $youtubePlaylistID = $getYoutubePlaylistID['items'][0]['contentDetails']['relatedPlaylists']['uploads'];
+}
+
+if(isset($youtubePlaylistID) && isset($youtubeAPIKey) && $showYoutube == 1){
+  
+    
+    //$getYoutubeVideoList = file_get_contents('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=' . $youtubePlaylistID.'&key='.$youtubeAPIKey);
+    $getYoutubeVideoList = file_get_contents('https://www.googleapis.com/youtube/v3/search?key='. $youtubeAPIKey .'&channelId=UCUawkLmrumi339vlYDw_evA&part=snippet&order=date&maxResults=20'); #fix for tedx
+    $youtubeVideoList = $modx->fromJSON($getYoutubeVideoList);
+    $youtubeVideoList = $youtubeVideoList['items'];
+ 
+    if($youtubeVideoList){
+        foreach($youtubeVideoList as $video){
+        
+            $dateObject = new DateTime($video['snippet']['publishedAt']);
+            $timestamp = $dateObject->getTimestamp();
+            
+            $content = $video['snippet']['description'];
+            $content = utf8_encode($content);
+            $content = preg_replace('@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@', '<a href="$1" target="_blank">$1</a>', $content);
+            $content = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1<span class="hashtag">#\2</span>', $content);
+        
+            $timeago = calcTimeago($timestamp);
+            $youtubeOutput[] = array(
+                'type'                => 'youtube',
+                'published'           => $timestamp,
+                'timeago'             => $timeago,
+                'columnclass'         => $columnClass,
+                'test'                => date('d/m/Y', $timestamp),
+                'channelTitle'        => $video['snippet']['channelTitle'],
+                'title'               => $video['snippet']['title'],
+                'description'         => $content,
+                'video'               => $video['id']['videoId']
+            );
+        
+        }
+    }
+    
+}
+
+$sortedFeed = array_merge($instaOutput, $twitterOutput, $youtubeOutput, $facebookOutput);
+$published = array();
+foreach ($sortedFeed as $key => $row)
+{
+    $published[$key] = $row['published'];
+}
+array_multisort($published, SORT_DESC, $sortedFeed);
+
+if(isset($limit)){
+    $sortedFeed = array_slice($sortedFeed, 0, $limit);  
+}
+
+if($showWall == 1){
+    
+    $modx->regClientScript($assetsUrl . 'js/imagesloaded.pkgd.min.js');
+    $modx->regClientScript($assetsUrl . 'js/masonry.pkgd.min.js');
+    
+    $output[] = $outerClass . '<div id="socialfeed" class="grid sf-wall"><div id="sf-inner"><div class="grid-sizer"></div>';    
+}
+else {
+    $output[] = $outerClass . '<div id="socialfeed"><div id="sf-inner">';
+}
+
+if($sortedFeed){
+    foreach($sortedFeed as $feed){
+        switch($feed['type']){
+            case 'twitter':
+                $output[] = $modx->getChunk($twitterTpl, $feed); 
+            break;
+            case 'instagram':
+                $output[] = $modx->getChunk($instagramTpl, $feed); 
+            break;
+            case 'youtube':
+                $output[] = $modx->getChunk($youtubeTpl, $feed); 
+            break;
+            case 'facebook':
+                $output[] = $modx->getChunk($facebookTpl, $feed); 
+            break;
+        }
+    }
+}
+
+$output[] = '</div>';
+if($filters == 1){
+    
+    $filterOutput = '<div id="sf-filters"><ul class="sf-filterlist">';
+    
+    if(isset($twitterToken) && isset($twitterTokenSecret) && isset($twitterConsKey) && isset($twitterConsSecret) && $showTwitter == 1){
+        $filterOutput .= '<li><a href="#" title="Show/Hide Twitter" class="twitter"></a></li>';
+    }
+    if(isset($instaClientID) && $showInstagram == 1){
+        $filterOutput .= '<li><a href="#" title="Show/Hide Instagram" class="instagram"></a></li>';
+    }
+    if(!empty($youtubeOutput) && $showYoutube == 1){
+        $filterOutput .= '<li><a href="#" title="Show/Hide Youtube" class="youtube"></a></li>';
+    }
+    if($showFacebook == 1){
+        $filterOutput .= '<li><a href="#" title="Show/Hide Facebook" class="facebook"></a></li>';
+    }
+                
+    $filterOutput .= '</ul><div class="clearfix"></div></div>';                
+                
+    $output[] = $filterOutput;
+}
+
+$output[] = '</div>' . $outerClassEnd;
+
+return implode("\n", $output);
