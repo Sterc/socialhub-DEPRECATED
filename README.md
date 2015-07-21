@@ -3,7 +3,10 @@ MODX snippet for showing social feed (twitter, instagram, youtube, facebook)
 
 To be able to use this snippet it is necessary to create API keys for the different social media accounts you want to use. 
 
-
+## Requirements
+    - PHP version 5.4.0 or higher (In order to use Facebook API);
+    - Imagesloaded JQuery plugin (included in assets folder);
+    - Masonry JQuery plugin (included in assets folder);
 
 ## Parameters
 
