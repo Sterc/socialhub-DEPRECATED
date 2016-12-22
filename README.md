@@ -1,4 +1,4 @@
-# socialFeed
+# socialFeed [OUTDATED]
 MODX snippet for showing social feed (twitter, instagram, youtube, facebook)
 
 To be able to use this snippet it is necessary to create API keys for the different social media accounts you want to use. 
