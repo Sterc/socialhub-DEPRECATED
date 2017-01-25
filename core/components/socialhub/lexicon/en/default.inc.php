@@ -9,7 +9,7 @@
 $_lang['socialhub'] = 'SocialHub';
 
 $_lang['socialhub.menu.socialhub'] = 'SocialHub';
-$_lang['socialhub.menu.socialhub_desc'] = 'A sample Extra to develop from.';
+$_lang['socialhub.menu.socialhub_desc'] = 'Manage your social feed.';
 
 $_lang['socialhub.global.search'] = 'Search';
 
