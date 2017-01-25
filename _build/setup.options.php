@@ -1,11 +1,11 @@
 <?php
 /**
- * SocialStream setup options
+ * SocialHub setup options
  *
- * @package SocialStream
+ * @package SocialHub
  * @subpackage build
  */
-$package = 'SocialStream';
+$package = 'SocialHub';
 
 $settings = array(
     array(
