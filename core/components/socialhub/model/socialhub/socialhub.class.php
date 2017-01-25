@@ -44,7 +44,7 @@ class SocialHub
 
         /* loads some default paths for easier management */
         $this->options = array_merge(
-            [
+            array(
                 'namespace' => $this->namespace,
                 'corePath' => $corePath,
                 'modelPath' => $corePath . 'model/',
@@ -56,7 +56,7 @@ class SocialHub
                 'jsUrl' => $assetsUrl . 'js/',
                 'cssUrl' => $assetsUrl . 'css/',
                 'connectorUrl' => $assetsUrl . 'connector.php'
-            ],
+            ),
             $options
         );
 
