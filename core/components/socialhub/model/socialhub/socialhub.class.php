@@ -11,7 +11,7 @@ class SocialHub
     public $modx = null;
     public $namespace = 'socialhub';
     public $cache = null;
-    public $options = [];
+    public $options = array();
 
     /**
      * SocialHub constructor.
@@ -19,7 +19,7 @@ class SocialHub
      * @param modX  $modx
      * @param array $options
      */
-    public function __construct(modX &$modx, array $options = [])
+    public function __construct(modX &$modx, array $options = array())
     {
         $this->modx =& $modx;
         $this->namespace = $this->getOption('namespace', $options, 'socialhub');
@@ -73,7 +73,7 @@ class SocialHub
      * namespaced system setting; by default this value is null.
      * @return mixed The option value or the default value specified.
      */
-    public function getOption($key, $options = [], $default = null)
+    public function getOption($key, $options = array(), $default = null)
     {
         $option = $default;
         if (!empty($key) && is_string($key)) {
