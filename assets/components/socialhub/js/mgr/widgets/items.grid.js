@@ -203,9 +203,16 @@ Ext.extend(SocialHub.grid.Items,MODx.grid.Grid,{
             socialLink = 'https://twitter.com/';
         }
 
-      var tpl = new Ext.XTemplate('<tpl for=".">' + '<img src="{avatar}" width="75" style="float:left; margin-right:10px"/><h3>{fullname}</h3><p><a href="{link}" target="_blank">{username}</a></p>' + '</tpl>', {
-         compiled: true
-      });
+        if (record.data.avatar != '') {
+            var tpl = new Ext.XTemplate('<tpl for=".">' + '<img src="{avatar}" width="75" style="float:left; margin-right:10px"/><h3>{fullname}</h3><p><a href="{link}" target="_blank">{username}</a></p>' + '</tpl>', {
+                compiled: true
+            });
+        } else {
+            var tpl = new Ext.XTemplate('<tpl for=".">' + '<h3>{fullname}</h3><p><a href="{link}" target="_blank">{username}</a></p>' + '</tpl>', {
+                compiled: true
+            });
+        }
+        
       return tpl.apply(record.data);
    }    
    ,instaRender: function (value, metaData, record, rowIndex, colIndex, store) {
