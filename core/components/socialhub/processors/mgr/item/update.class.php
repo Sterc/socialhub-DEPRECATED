@@ -9,7 +9,7 @@
 class SocialHubItemUpdateProcessor extends modObjectUpdateProcessor
 {
     public $classKey = 'SocialHubItem';
-    public $languageTopics = ['socialhub:default'];
+    public $languageTopics = array('socialhub:default');
     public $objectType = 'socialhub.item';
 
     // public function beforeSet() {
