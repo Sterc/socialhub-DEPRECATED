@@ -2,7 +2,7 @@
 /**
  * Build Schema script
  *
- * @package SocialStream
+ * @package SocialHub
  * @subpackage build
  */
 $mtime = microtime();
@@ -12,7 +12,7 @@ $tstart = $mtime;
 set_time_limit(0);
 
 /* define package name */
-define('PKG_NAME','SocialStream');
+define('PKG_NAME','SocialHub');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
 
 /* define sources */

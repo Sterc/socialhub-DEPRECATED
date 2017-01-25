@@ -1,11 +1,11 @@
 <?php
 /**
- * SocialStream setup options resolver
+ * SocialHub setup options resolver
  *
- * @package SocialStream
+ * @package SocialHub
  * @subpackage build
  */
-$package = 'SocialStream';
+$package = 'SocialHub';
 
 $success = false;
 switch ($options[xPDOTransport::PACKAGE_ACTION]) {
