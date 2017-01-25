@@ -7,14 +7,14 @@
  */
 class SocialHubItemGetListProcessor extends modObjectGetListProcessor {
     public $classKey = 'SocialHubItem';
-    public $languageTopics = ['socialhub:default'];
+    public $languageTopics = array('socialhub:default');
     public $defaultSortField = 'id';
     public $defaultSortDirection = 'ASC';
     public $objectType = 'socialhub.item';
 
     public function prepareQueryBeforeCount(xPDOQuery $c)
     {
-        $c->where(['source' => $this->getProperty('source'),'active' => $this->getProperty('active')]);
+        $c->where(array('source' => $this->getProperty('source'),'active' => $this->getProperty('active')));
 
         // $query = $this->getProperty('query');
         // if (!empty($query)) {
@@ -28,9 +28,9 @@ class SocialHubItemGetListProcessor extends modObjectGetListProcessor {
         $language = $this->getProperty('language');
         if (!empty($language)) {
             $c->where(
-                [
+                array (
                     'language' => $language
-                ]
+                )
             );
         }
 

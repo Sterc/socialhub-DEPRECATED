@@ -8,7 +8,7 @@
 class SocialHubItemRemoveProcessor extends modObjectRemoveProcessor
 {
     public $classKey = 'SocialHubItem';
-    public $languageTopics = ['socialhub:default'];
+    public $languageTopics = array('socialhub:default');
     public $objectType = 'socialhub.item';
 }
 
