@@ -28,6 +28,6 @@ class SocialHubHomeManagerController extends SocialHubBaseManagerController
      */
     public function getTemplateFile()
     {
-        return $this->socialhub->getOption('templatesPath').'home.tpl';
+        return $this->socialhub->getOption('templatesPath') . 'home.tpl';
     }
 }
