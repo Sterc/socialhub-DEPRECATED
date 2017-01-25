@@ -1,1 +1,0 @@
-<div id="socialstream-panel-home-div"></div>
