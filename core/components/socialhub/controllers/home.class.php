@@ -9,7 +9,7 @@ require_once dirname(dirname(__FILE__)) . '/index.class.php';
  */
 class SocialHubHomeManagerController extends SocialHubBaseManagerController
 {
-    public function process(array $scriptProperties = [])
+    public function process(array $scriptProperties = array())
     {
     }
 
@@ -20,9 +20,9 @@ class SocialHubHomeManagerController extends SocialHubBaseManagerController
 
     public function loadCustomCssJs()
     {
-        $this->addJavascript($this->socialhub->getOption('jsUrl').'mgr/widgets/items.grid.js');
-        $this->addJavascript($this->socialhub->getOption('jsUrl').'mgr/widgets/home.panel.js');
-        $this->addLastJavascript($this->socialhub->getOption('jsUrl').'mgr/sections/home.js');
+        $this->addJavascript($this->socialhub->getOption('jsUrl') . 'mgr/widgets/items.grid.js');
+        $this->addJavascript($this->socialhub->getOption('jsUrl') . 'mgr/widgets/home.panel.js');
+        $this->addLastJavascript($this->socialhub->getOption('jsUrl') . 'mgr/sections/home.js');
     }
 
     /**
@@ -30,6 +30,6 @@ class SocialHubHomeManagerController extends SocialHubBaseManagerController
      */
     public function getTemplateFile()
     {
-        return $this->socialhub->getOption('templatesPath').'home.tpl';
+        return $this->socialhub->getOption('templatesPath') . 'home.tpl';
     }
 }

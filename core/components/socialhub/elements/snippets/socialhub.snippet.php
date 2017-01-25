@@ -107,7 +107,7 @@ $socialhub = $modx->getService(
         null,
         $modx->getOption('core_path') . 'components/socialhub/'
     ) . 'model/socialhub/',
-    []
+    array()
 );
 
 if (!($socialhub instanceof SocialHub)) {
@@ -141,11 +141,11 @@ $cacheTime     = (int) $modx->getOption('cacheTime', $scriptProperties, 120);
 $cacheKey      = $modx->getOption('cacheKey', $scriptProperties, 'socialhubPosts');
 $toPlaceholder = $modx->getOption('toPlaceholder', $scriptProperties, null);
 
-$results = [];
+$results = array();
 if (!$cache || ($cache && $modx->cacheManager->get($cacheKey) == '')) {
-    $where = [
+    $where = array(
         'active' => 1
-    ];
+    );
 
     if (!empty($filterSource)) {
         $where['source:IN'] = explode(',', $filterSource);
@@ -183,7 +183,7 @@ if (!$cache || ($cache && $modx->cacheManager->get($cacheKey) == '')) {
 
     $idx = 1;
     foreach ($posts as $post) {
-        $results[] = array_merge($post->toArray(), ['idx' => $idx]);
+        $results[] = array_merge($post->toArray(), array('idx' => $idx));
 
         $idx++;
     }
@@ -230,7 +230,7 @@ foreach ($results as $result) {
 }
 
 if (!empty($output)) {
-    $output = $modx->getChunk($outerTpl, ['output' => $output]);
+    $output = $modx->getChunk($outerTpl, array('output' => $output));
 } else {
     $output = '';
 }
@@ -247,9 +247,9 @@ if (!$toJSON) {
     return $output;
 } else {
     return json_encode(
-        [
+        array(
             'html'   => $output,
             'unread' => $unreadCount
-        ]
+        )
     );
 }
