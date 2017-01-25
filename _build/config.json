@@ -1,0 +1,146 @@
+{
+    "name": "SocialStream",
+    "lowCaseName": "socialstream",
+    "description": "",
+    "author": "Sterc",
+    "version": "0.1.0",
+    "package":{
+        "menus": [{
+            "text": "socialstream.menu.socialstream"
+            ,"description": "socialstream.menu.socialstream_desc"
+            ,"action": "home"
+        }],
+        "categories": [{
+          "name": "SocialStream"
+        }],
+        "elements": {
+            "snippets": [{
+              "name": "SocialStream",
+              "file": "socialstream.snippet.php"
+            }],
+            "chunks": [{
+              "name": "socialstreamFacebook",
+              "file": "socialstreamfacebook.chunk.tpl"
+            }, {
+              "name": "socialstreamInstagram",
+              "file": "socialstreaminstagram.chunk.tpl"
+            }, {
+              "name": "socialstreamTwitter",
+              "file": "socialstreamtwitter.chunk.tpl"
+            }, {
+              "name": "socialstreamYoutube",
+              "file": "socialstreamyoutube.chunk.tpl"
+            }, {
+              "name": "socialstreamOuter",
+              "file": "socialstreamouter.chunk.tpl"
+            }]
+        },
+        "systemSettings": [{
+            "key": "active_default",
+            "type": "textfield",
+            "area": "General",
+            "value": 0
+        }, {
+          "key": "facebook_app_id",
+          "type": "textfield",
+          "area": "Facebook",
+          "value": ""
+        }, {
+          "key": "facebook_app_secret",
+          "type": "textfield",
+          "area": "Facebook",
+          "value": ""
+        }, {
+          "key": "facebook_page",
+          "type": "textfield",
+          "area": "Facebook",
+          "value": ""
+        }, {
+          "key": "instagram_accesstoken",
+          "type": "textfield",
+          "area": "Instagram",
+          "value": ""
+        }, {
+          "key": "instagram_client_id",
+          "type": "textfield",
+          "area": "Instagram",
+          "value": ""
+        }, {
+          "key": "instagram_code",
+          "type": "textfield",
+          "area": "Instagram",
+          "value": ""
+        }, {
+          "key": "instagram_search_query",
+          "type": "textfield",
+          "area": "Instagram",
+          "value": ""
+        }, {
+          "key": "instagram_user_id",
+          "type": "textfield",
+          "area": "Instagram",
+          "value": ""
+        }, {
+          "key": "instagram_username",
+          "type": "textfield",
+          "area": "Instagram",
+          "value": ""
+        }, {
+          "key": "twitter_consumer_key",
+          "type": "textfield",
+          "area": "Twitter",
+          "value": ""
+        }, {
+          "key": "twitter_consumer_secret",
+          "type": "textfield",
+          "area": "Twitter",
+          "value": ""
+        }, {
+          "key": "twitter_search_query",
+          "type": "textfield",
+          "area": "Twitter",
+          "value": ""
+        }, {
+          "key": "twitter_token",
+          "type": "textfield",
+          "area": "Twitter",
+          "value": ""
+        }, {
+          "key": "twitter_token_secret",
+          "type": "textfield",
+          "area": "Twitter",
+          "value": ""
+        }, {
+          "key": "youtube_api_key",
+          "type": "textfield",
+          "area": "Youtube",
+          "value": ""
+        }, {
+          "key": "youtube_username",
+          "type": "textfield",
+          "area": "Youtube",
+          "value": ""
+        }, {
+            "key": "user_name",
+            "type": "textfield",
+            "area": "Sterc Extra",
+            "value": ""
+        }, {
+            "key": "user_email",
+            "type": "textfield",
+            "area": "Sterc Extra",
+            "value": ""
+        }]
+    }
+    ,"database": {
+        "tables": ["SocialStreamItem"]
+    }
+    ,"build":{
+        "resolver": {
+            "after": ["setupoptions.resolver.php", "stercextra.resolver.php"]
+        },
+        "setupOptions":{
+            "source": "setup.options.php"
+        }
+    }
+}
