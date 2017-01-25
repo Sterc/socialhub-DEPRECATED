@@ -77,7 +77,7 @@ class SocialImport
                 null,
                 $this->modx->getOption('core_path') . 'components/socialhub/'
             ) . 'model/socialhub/',
-            []
+            array()
         );
 
         if (!($socialhub instanceof SocialHub)) {
@@ -136,13 +136,13 @@ class SocialImport
             }
 
             if (!empty($instagramCode) && !empty($this->instagramClientId) && !empty($instagramClientSecret)) {
-                $fields = [
+                $fields = array(
                     'client_id'     => $this->instagramClientId,
                     'client_secret' => $instagramClientSecret,
                     'redirect_uri'  => INSTAGRAM_REDIRECT_URI,
                     'grant_type'    => 'authorization_code',
                     'code'          => $instagramCode
-                ];
+                );
 
                 $url      = 'https://api.instagram.com/oauth/access_token';
                 $response = $this->callApiPost($url, $fields);
@@ -190,18 +190,18 @@ class SocialImport
         ) {
             require_once(MODX_CORE_PATH . 'components/socialhub/lib/twitter/TwitterAPIExchange.php');
 
-            $apiSettings = [
+            $apiSettings = array(
                 'oauth_access_token'        => $twitterToken,
                 'oauth_access_token_secret' => $twitterTokenSecret,
                 'consumer_key'              => $twitterConsKey,
                 'consumer_secret'           => $twitterConsSecret
-            ];
+            );
 
             $twitter = new TwitterAPIExchange($apiSettings);
             if (!empty($twitterUsernames) && is_array($twitterUsernames)) {
                 $timelineUrl           = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
                 $timelineRequestMethod = 'GET';
-                $timelineTweets        = [];
+                $timelineTweets        = array();
 
                 foreach ($twitterUsernames as $twitterUsername) {
                     $timelineQuery = '?screen_name=' . $twitterUsername;
@@ -244,7 +244,7 @@ class SocialImport
                                 $media = $tweet['entities']['media'][0]['media_url_https'];
                             }
 
-                            $item = [
+                            $item = array(
                                 'source'      => 'twitter',
                                 'source_id'   => $tweet['id'],
                                 'source_type' => $sourceType,
@@ -257,7 +257,7 @@ class SocialImport
                                 'link'        => 'https://twitter.com/sterc/status/' . $tweet['id'],
                                 'date'        => $date,
                                 'data'        => $tweet
-                            ];
+                            );
 
                             $this->handlePost('twitter', $tweet['id'], $item);
                         }
@@ -298,7 +298,7 @@ class SocialImport
                                 $media = $tweet['entities']['media'][0]['media_url_https'];
                             }
 
-                            $item = [
+                            $item = array(
                                 'source'      => 'twitter',
                                 'source_id'   => $tweet['id'],
                                 'source_type' => 'mention',
@@ -311,7 +311,7 @@ class SocialImport
                                 'link'        => 'https://twitter.com/sterc/status/' . $tweet['id'],
                                 'date'        => $date,
                                 'data'        => $tweet
-                            ];
+                            );
 
                             $this->handlePost('twitter', $tweet['id'], $item);
                         }
@@ -386,7 +386,7 @@ class SocialImport
                                         $sourceType = 'post';
                                     }
 
-                                    $item = [
+                                    $item = array(
                                         'source'      => 'instagram',
                                         'source_id'   => $post['id'],
                                         'source_type' => $sourceType,
@@ -399,7 +399,7 @@ class SocialImport
                                         'link'        => $link,
                                         'date'        => $date,
                                         'data'        => $post
-                                    ];
+                                    );
 
                                     $this->handlePost('instagram', $post['id'], $item);
                                 }
@@ -450,7 +450,7 @@ class SocialImport
                                     $date = date('Y-m-d H:i:s', $post['created_time']);
                                 }
 
-                                $item = [
+                                $item = array(
                                     'source'      => 'instagram',
                                     'source_id'   => $post['id'],
                                     'source_type' => 'post',
@@ -463,7 +463,7 @@ class SocialImport
                                     'link'        => $link,
                                     'date'        => $date,
                                     'data'        => $post
-                                ];
+                                );
 
                                 $this->handlePost('instagram', $post['id'], $item);
                             }
@@ -600,7 +600,7 @@ class SocialImport
                         $media = 'https://graph.facebook.com/' . $post->object_id . '/picture?type=normal';
                     }
 
-                    $item = [
+                    $item = array(
                         'source'      => 'facebook',
                         'source_id'   => $post->id,
                         'source_type' => $sourceType,
@@ -613,7 +613,7 @@ class SocialImport
                         'link'        => $link,
                         'date'        => $date,
                         'data'        => (array) $post
-                    ];
+                    );
 
                     $this->handlePost('facebook', $post->id, $item);
                 }
@@ -636,7 +636,7 @@ class SocialImport
         $replaceCharacters .= '|[\x{2600}-\x{27BF}][\x{FE00}-\x{FEFF}]?|[\x{2900}-\x{297F}][\x{FE00}-\x{FEFF}]?';
         $replaceCharacters .= '|[\x{2B00}-\x{2BF0}][\x{FE00}-\x{FEFF}]?|[\x{1F000}-\x{1F6FF}][\x{FE00}-\x{FEFF}]?/u';
 
-        $cleanText =  preg_replace($replaceCharacters, '', $cleanText);
+        $cleanText = preg_replace($replaceCharacters, '', $cleanText);
 
         return $cleanText;
     }
@@ -658,10 +658,10 @@ class SocialImport
 
         $c = $this->modx->newQuery('SocialHubItem');
         $c->where(
-            [
+            array(
                 'SocialHubItem.source'    => $source,
                 'SocialHubItem.source_id' => $sourceId,
-            ]
+            )
         );
 
         $result = $this->modx->getObject('SocialHubItem', $c);
@@ -781,7 +781,7 @@ class SocialImport
      */
     private function replaceCharacters($string)
     {
-        $replacers = [
+        $replacers = array(
             'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A',
             'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I',
             'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U',
@@ -789,7 +789,7 @@ class SocialImport
             'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i',
             'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u',
             'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y'
-        ];
+        );
 
         return strtr($string, $replacers);
     }
@@ -806,13 +806,13 @@ class SocialImport
          * Code URL (manual in browser for testing purposes):
          * https://instagram.com/oauth/authorize/?client_id=fe8d276749044010b3897ca4e5a286e9&redirect_uri=http%3A%2F%2Fvanderlijn.nl.sander%2Fassets%2Fcomponents%2Fsocialhub%2Fgetinstagramcode.php&response_type=code&scope=public_content
          */
-        $params = [
+        $params = array(
             'client_id'     => $this->instagramClientId,
             'redirect_uri'  => INSTAGRAM_REDIRECT_URI,
             'response_type' => 'code',
             'scope'         => 'public_content'
-        ];
-        $codeUrl  = 'https://instagram.com/oauth/authorize/?' . http_build_query($params);
+        );
+        $codeUrl = 'https://instagram.com/oauth/authorize/?' . http_build_query($params);
         $this->callApi($codeUrl);
 
         return true;
