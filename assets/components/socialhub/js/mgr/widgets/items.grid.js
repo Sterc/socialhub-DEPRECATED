@@ -1,8 +1,8 @@
-SocialStream.grid.Items = function(config) {
+SocialHub.grid.Items = function(config) {
     config = config || {};
     Ext.applyIf(config,{
-        id: 'socialstream-grid-items'
-        ,url: SocialStream.config.connectorUrl
+        id: 'socialhub-grid-items'
+        ,url: SocialHub.config.connectorUrl
         ,baseParams: {
             action: 'mgr/item/getlist'
             ,active: 0
@@ -21,7 +21,7 @@ SocialStream.grid.Items = function(config) {
             ,dataIndex: 'id'
             ,width: 70
         },{
-            header: _('socialstream.item.user')
+            header: _('socialhub.item.user')
             ,dataIndex: 'username'
             ,width: 200
             ,renderer: {
@@ -29,7 +29,7 @@ SocialStream.grid.Items = function(config) {
                 scope: this
             }
         },{
-            header: _('socialstream.item.content')
+            header: _('socialhub.item.content')
             ,dataIndex: 'content'
             ,width: 250
             ,renderer: {
@@ -37,7 +37,7 @@ SocialStream.grid.Items = function(config) {
                 scope: this
             }
         },{
-            header: _('socialstream.item.date')
+            header: _('socialhub.item.date')
             ,dataIndex: 'date'
             ,dateFormat:'c'
             ,width: 100
@@ -48,14 +48,14 @@ SocialStream.grid.Items = function(config) {
         }]
         ,tbar: [
         // {
-        //     text: _('socialstream.item.create')
+        //     text: _('socialhub.item.create')
         //     ,handler: this.createItem
         //     ,scope: this
         // },
         '->',
         // {
         //     xtype: 'textfield'
-        //     ,emptyText: _('socialstream.global.search') + '...'
+        //     ,emptyText: _('socialhub.global.search') + '...'
         //     ,listeners: {
         //         'change': {fn:this.search,scope:this}
         //         ,'render': {fn: function(cmp) {
@@ -91,9 +91,9 @@ SocialStream.grid.Items = function(config) {
             }
         }]
     });
-    SocialStream.grid.Items.superclass.constructor.call(this,config);
+    SocialHub.grid.Items.superclass.constructor.call(this,config);
 };
-Ext.extend(SocialStream.grid.Items,MODx.grid.Grid,{
+Ext.extend(SocialHub.grid.Items,MODx.grid.Grid,{
     windows: {}
      ,filterApproved: function(combo) {
         var s = this.getStore();
@@ -106,12 +106,12 @@ Ext.extend(SocialStream.grid.Items,MODx.grid.Grid,{
         console.log(this.menu.record);
         if(this.menu.record.active === false){
             m = [{
-                text: _('socialstream.approve')
+                text: _('socialhub.approve')
                 ,handler: this.setActive
             }];
         }else{
             m = [{
-                text: _('socialstream.deny')
+                text: _('socialhub.deny')
                 ,handler: this.setInactive
             }];
         }
@@ -120,7 +120,7 @@ Ext.extend(SocialStream.grid.Items,MODx.grid.Grid,{
     // ,createItem: function(btn,e) {
 
     //     var createItem = MODx.load({
-    //         xtype: 'socialstream-window-item'
+    //         xtype: 'socialhub-window-item'
     //         ,listeners: {
     //             'success': {fn:function() { this.refresh(); },scope:this}
     //         }
@@ -132,8 +132,8 @@ Ext.extend(SocialStream.grid.Items,MODx.grid.Grid,{
         if (!this.menu.record || !this.menu.record.id) return false;
 
         var updateItem = MODx.load({
-            xtype: 'socialstream-window-item'
-            ,title: _('socialstream.item.update')
+            xtype: 'socialhub-window-item'
+            ,title: _('socialhub.item.update')
             ,action: 'mgr/item/update'
             ,record: this.menu.record
             ,listeners: {
@@ -149,8 +149,8 @@ Ext.extend(SocialStream.grid.Items,MODx.grid.Grid,{
         if (!this.menu.record) return false;
         
         MODx.msg.confirm({
-            title: _('socialstream.item.remove')
-            ,text: _('socialstream.item.remove_confirm')
+            title: _('socialhub.item.remove')
+            ,text: _('socialhub.item.remove_confirm')
             ,url: this.config.url
             ,params: {
                 action: 'mgr/item/remove'
@@ -163,8 +163,8 @@ Ext.extend(SocialStream.grid.Items,MODx.grid.Grid,{
     }
     ,setActive: function(btn,e) {
         MODx.msg.confirm({
-            title: _('socialstream.approve')
-            ,text: _('socialstream.msg.approve')
+            title: _('socialhub.approve')
+            ,text: _('socialhub.msg.approve')
             ,url: this.config.url
             ,params: {
                 action: 'mgr/item/update'
@@ -178,8 +178,8 @@ Ext.extend(SocialStream.grid.Items,MODx.grid.Grid,{
     }
     ,setInactive: function(btn,e) {
         MODx.msg.confirm({
-            title: _('socialstream.approve')
-            ,text: _('socialstream.msg.deny')
+            title: _('socialhub.approve')
+            ,text: _('socialhub.msg.deny')
             ,url: this.config.url
             ,params: {
                 action: 'mgr/item/update'
@@ -222,14 +222,14 @@ Ext.extend(SocialStream.grid.Items,MODx.grid.Grid,{
         return tpl.apply(record.data);
    },
 });
-Ext.reg('socialstream-grid-items',SocialStream.grid.Items);
+Ext.reg('socialhub-grid-items',SocialHub.grid.Items);
 
-// SocialStream.window.Item = function(config) {
+// SocialHub.window.Item = function(config) {
 //     config = config || {};
 //     Ext.applyIf(config,{
-//         title: _('socialstream.item.create')
+//         title: _('socialhub.item.create')
 //         ,closeAction: 'close'
-//         ,url: SocialStream.config.connectorUrl
+//         ,url: SocialHub.config.connectorUrl
 //         ,action: 'mgr/item/create'
 //         ,fields: [{
 //             xtype: 'textfield'
@@ -251,8 +251,8 @@ Ext.reg('socialstream-grid-items',SocialStream.grid.Items);
 //             ,hidden: true
 //         }]
 //     });
-//     SocialStream.window.Item.superclass.constructor.call(this,config);
+//     SocialHub.window.Item.superclass.constructor.call(this,config);
 // };
-// Ext.extend(SocialStream.window.Item,MODx.Window);
-// Ext.reg('socialstream-window-item',SocialStream.window.Item);
+// Ext.extend(SocialHub.window.Item,MODx.Window);
+// Ext.reg('socialhub-window-item',SocialHub.window.Item);
 

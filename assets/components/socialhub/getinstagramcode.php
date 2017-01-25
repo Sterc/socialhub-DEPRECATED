@@ -10,7 +10,7 @@ $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 $modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
 
 if (isset($_GET['code']) && !empty($_GET['code'])) {
-    $setting = $modx->getObject('modSystemSetting', 'socialstream.instagram_code');
+    $setting = $modx->getObject('modSystemSetting', 'socialhub.instagram_code');
     $setting->set('value', $_GET['code']);
 
     if ($setting->save()) {
@@ -19,6 +19,6 @@ if (isset($_GET['code']) && !empty($_GET['code'])) {
         /*
          * Has the code, now import feed.
          */
-        require_once MODX_CORE_PATH . 'components/socialstream/elements/cronjobs/social-import.php';
+        require_once MODX_CORE_PATH . 'components/socialhub/elements/cronjobs/social-import.php';
     }
 }
