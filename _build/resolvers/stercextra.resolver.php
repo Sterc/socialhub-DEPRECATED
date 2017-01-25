@@ -1,5 +1,5 @@
 <?php
-$package = 'SocialStream';
+$package = 'SocialHub';
 $url     = 'https://extras.sterc.nl/api/v1/packagedata';
 $params  = array();
 

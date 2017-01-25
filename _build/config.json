@@ -1,38 +1,38 @@
 {
-    "name": "SocialStream",
-    "lowCaseName": "socialstream",
+    "name": "SocialHub",
+    "lowCaseName": "socialhub",
     "description": "",
     "author": "Sterc",
     "version": "0.1.0",
     "package":{
         "menus": [{
-            "text": "socialstream.menu.socialstream"
-            ,"description": "socialstream.menu.socialstream_desc"
+            "text": "socialhub.menu.socialhub"
+            ,"description": "socialhub.menu.socialhub_desc"
             ,"action": "index"
         }],
         "categories": [{
-          "name": "SocialStream"
+          "name": "SocialHub"
         }],
         "elements": {
             "snippets": [{
-              "name": "SocialStream",
-              "file": "socialstream.snippet.php"
+              "name": "SocialHub",
+              "file": "socialhub.snippet.php"
             }],
             "chunks": [{
-              "name": "socialstreamFacebook",
-              "file": "socialstreamfacebook.chunk.tpl"
+              "name": "socialhubFacebook",
+              "file": "socialhubfacebook.chunk.tpl"
             }, {
-              "name": "socialstreamInstagram",
-              "file": "socialstreaminstagram.chunk.tpl"
+              "name": "socialhubInstagram",
+              "file": "socialhubinstagram.chunk.tpl"
             }, {
-              "name": "socialstreamTwitter",
-              "file": "socialstreamtwitter.chunk.tpl"
+              "name": "socialhubTwitter",
+              "file": "socialhubtwitter.chunk.tpl"
             }, {
-              "name": "socialstreamYoutube",
-              "file": "socialstreamyoutube.chunk.tpl"
+              "name": "socialhubYoutube",
+              "file": "socialhubyoutube.chunk.tpl"
             }, {
-              "name": "socialstreamOuter",
-              "file": "socialstreamouter.chunk.tpl"
+              "name": "socialhubOuter",
+              "file": "socialhubouter.chunk.tpl"
             }]
         },
         "systemSettings": [{
@@ -133,7 +133,7 @@
         }]
     }
     ,"database": {
-        "tables": ["SocialStreamItem"]
+        "tables": ["SocialHubItem"]
     }
     ,"build":{
         "resolver": {
