@@ -47,30 +47,7 @@ SocialHub.grid.Items = function(config) {
             } 
         }]
         ,tbar: [
-        // {
-        //     text: _('socialhub.item.create')
-        //     ,handler: this.createItem
-        //     ,scope: this
-        // },
         '->',
-        // {
-        //     xtype: 'textfield'
-        //     ,emptyText: _('socialhub.global.search') + '...'
-        //     ,listeners: {
-        //         'change': {fn:this.search,scope:this}
-        //         ,'render': {fn: function(cmp) {
-        //             new Ext.KeyMap(cmp.getEl(), {
-        //                 key: Ext.EventObject.ENTER
-        //                 ,fn: function() {
-        //                     this.fireEvent('change',this);
-        //                     this.blur();
-        //                     return true;
-        //                 }
-        //                 ,scope: cmp
-        //             });
-        //         },scope:this}
-        //     }
-        // }
         {
             xtype: 'modx-combo'
             ,width:200
@@ -103,13 +80,13 @@ Ext.extend(SocialHub.grid.Items,MODx.grid.Grid,{
     }
     ,getMenu: function() {
         var m;
-        console.log(this.menu.record);
-        if(this.menu.record.active === false){
+
+        if (this.menu.record.active === false) {
             m = [{
                 text: _('socialhub.approve')
                 ,handler: this.setActive
             }];
-        }else{
+        } else{
             m = [{
                 text: _('socialhub.deny')
                 ,handler: this.setInactive
@@ -117,17 +94,6 @@ Ext.extend(SocialHub.grid.Items,MODx.grid.Grid,{
         }
         this.addContextMenuItem(m);
     }
-    // ,createItem: function(btn,e) {
-
-    //     var createItem = MODx.load({
-    //         xtype: 'socialhub-window-item'
-    //         ,listeners: {
-    //             'success': {fn:function() { this.refresh(); },scope:this}
-    //         }
-    //     });
-
-    //     createItem.show(e.target);
-    // }
     ,updateItem: function(btn,e,isUpdate) {
         if (!this.menu.record || !this.menu.record.id) return false;
 
@@ -212,7 +178,7 @@ Ext.extend(SocialHub.grid.Items,MODx.grid.Grid,{
                 compiled: true
             });
         }
-        
+
       return tpl.apply(record.data);
    }    
    ,instaRender: function (value, metaData, record, rowIndex, colIndex, store) {
@@ -230,36 +196,3 @@ Ext.extend(SocialHub.grid.Items,MODx.grid.Grid,{
    },
 });
 Ext.reg('socialhub-grid-items',SocialHub.grid.Items);
-
-// SocialHub.window.Item = function(config) {
-//     config = config || {};
-//     Ext.applyIf(config,{
-//         title: _('socialhub.item.create')
-//         ,closeAction: 'close'
-//         ,url: SocialHub.config.connectorUrl
-//         ,action: 'mgr/item/create'
-//         ,fields: [{
-//             xtype: 'textfield'
-//             ,name: 'id'
-//             ,hidden: true
-//         },{
-//             xtype: 'textfield'
-//             ,fieldLabel: _('name')
-//             ,name: 'name'
-//             ,anchor: '100%'
-//         },{
-//             xtype: 'textarea'
-//             ,fieldLabel: _('description')
-//             ,name: 'description'
-//             ,anchor: '100%'
-//         },{
-//             xtype: 'textfield'
-//             ,name: 'position'
-//             ,hidden: true
-//         }]
-//     });
-//     SocialHub.window.Item.superclass.constructor.call(this,config);
-// };
-// Ext.extend(SocialHub.window.Item,MODx.Window);
-// Ext.reg('socialhub-window-item',SocialHub.window.Item);
-
