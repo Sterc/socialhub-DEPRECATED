@@ -1,16 +1,9 @@
 <?php
 require_once dirname(__FILE__) . '/model/socialstream/socialstream.class.php';
+
 /**
  * @package socialstream
  */
-class IndexManagerController extends SocialStreamBaseManagerController
-{
-    public static function getDefaultController()
-    {
-        return 'home';
-    }
-}
-
 abstract class SocialStreamBaseManagerController extends modExtraManagerController
 {
     /** @var SocialStream $socialstream */
@@ -39,5 +32,13 @@ abstract class SocialStreamBaseManagerController extends modExtraManagerControll
     public function checkPermissions()
     {
         return true;
+    }
+}
+
+class IndexManagerController extends SocialStreamBaseManagerController
+{
+    public static function getDefaultController()
+    {
+        return 'home';
     }
 }

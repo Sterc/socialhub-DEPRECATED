@@ -8,7 +8,7 @@
         "menus": [{
             "text": "socialstream.menu.socialstream"
             ,"description": "socialstream.menu.socialstream_desc"
-            ,"action": "index"
+            ,"action": "home"
         }],
         "categories": [{
           "name": "SocialStream"

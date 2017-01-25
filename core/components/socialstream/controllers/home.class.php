@@ -1,4 +1,6 @@
 <?php
+require_once dirname(dirname(__FILE__)) . '/index.class.php';
+
 /**
  * Loads the home page.
  *
@@ -7,7 +9,7 @@
  */
 class SocialStreamHomeManagerController extends SocialStreamBaseManagerController
 {
-    public function process(array $scriptProperties = [])
+    public function process(array $scriptProperties = array())
     {
     }
 
