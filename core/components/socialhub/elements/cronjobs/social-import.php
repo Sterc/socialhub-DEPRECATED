@@ -515,7 +515,7 @@ class SocialImport
                             }
 
                             $link = 'https://www.youtube.com/watch?v=' . $post['snippet']['resourceId']['videoId'];
-                            $item = [
+                            $item = array(
                                 'source'      => 'youtube',
                                 'source_id'   => $post['snippet']['resourceId']['videoId'],
                                 'source_type' => 'post',
@@ -528,7 +528,7 @@ class SocialImport
                                 'link'        => $link,
                                 'date'        => $date,
                                 'data'        => $post
-                            ];
+                            );
 
                             $this->handlePost('youtube', $post['snippet']['resourceId']['videoId'], $item);
                         }
