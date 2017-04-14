@@ -1,7 +1,7 @@
 <div class="socialhub-item youtube">
-    <a href="[[+link]]" target="_blank" title="[[+fullname:default=`[[+username]]`]]">
+    <a href="[[+link]]" target="_blank">
         [[+image:notempty=`
-            <img src="[[+image]]" alt="[[+fullname:default=`[[+username]]`]]"/>
+            <img src="[[+image]]"/>
         `:isempty=``]]
     </a>
     [[+content]]
