@@ -93,7 +93,7 @@ class SocialImport
     private function run()
     {
         $cm = $this->modx->getCacheManager();
-        $cm->refresh();
+        $cm->refresh(['system_settings' => []]);
 
         if (!defined('INSTAGRAM_REDIRECT_URI')) {
             define('INSTAGRAM_REDIRECT_URI', MODX_SITE_URL . 'assets/components/socialhub/getinstagramcode.php');
@@ -154,7 +154,7 @@ class SocialImport
                     $this->saveSystemSetting('socialhub.instagram_code', '');
 
                     $cm = $this->modx->getCacheManager();
-                    $cm->refresh();
+                    $cm->refresh(['system_settings' => []]);
                 }
             }
         }
@@ -259,7 +259,10 @@ class SocialImport
                                 'data'        => $tweet
                             );
 
-                            $this->handlePost('twitter', $tweet['id'], $item);
+                            /* Only import twitter posts having content. */
+                            if (!empty($item['content'])) {
+                                $this->handlePost('twitter', $tweet['id'], $item);
+                            }
                         }
                     }
                 }
@@ -350,59 +353,7 @@ class SocialImport
 
                         if (isset($instagramSearchPosts['data'])) {
                             foreach ($instagramSearchPosts['data'] as $post) {
-                                if (isset($post['id'])) {
-                                    $avatar = '';
-                                    if (isset($post['user']['profile_picture'])) {
-                                        $avatar = $post['user']['profile_picture'];
-                                    }
-
-                                    $username = '';
-                                    if (isset($post['user']['username'])) {
-                                        $username = utf8_decode($post['user']['username']);
-                                    }
-
-                                    $fullname = '';
-                                    if (isset($post['user']['full_name'])) {
-                                        $fullname = utf8_decode($post['user']['full_name']);
-                                    }
-
-                                    $media = '';
-                                    if (isset($post['images']['standard_resolution']['url'])) {
-                                        $media = $post['images']['standard_resolution']['url'];
-                                    }
-
-                                    $link = '';
-                                    if (isset($post['link'])) {
-                                        $link = $post['link'];
-                                    }
-
-                                    $date = date('Y-m-d H:i:s');
-                                    if (isset($post['created_time'])) {
-                                        $date = date('Y-m-d H:i:s', $post['created_time']);
-                                    }
-
-                                    $sourceType = 'mention';
-                                    if ($instagramUsername == $username) {
-                                        $sourceType = 'post';
-                                    }
-
-                                    $item = array(
-                                        'source'      => 'instagram',
-                                        'source_id'   => $post['id'],
-                                        'source_type' => $sourceType,
-                                        'language'    => 'nl',
-                                        'avatar'      => $avatar,
-                                        'username'    => $username,
-                                        'fullname'    => $fullname,
-                                        'content'     => $this->formatContent($post, 'instagram'),
-                                        'image'       => $media,
-                                        'link'        => $link,
-                                        'date'        => $date,
-                                        'data'        => $post
-                                    );
-
-                                    $this->handlePost('instagram', $post['id'], $item);
-                                }
+                                $this->importInstagramItem($post, $instagramUsername);
                             }
                         }
                     }
@@ -419,54 +370,7 @@ class SocialImport
 
                     if (isset($instagramUserPosts['data'])) {
                         foreach ($instagramUserPosts['data'] as $post) {
-                            if (isset($post['id'])) {
-                                $avatar = '';
-                                if (isset($post['user']['profile_picture'])) {
-                                    $avatar = $post['user']['profile_picture'];
-                                }
-
-                                $username = '';
-                                if (isset($post['user']['username'])) {
-                                    $username = utf8_decode($post['user']['username']);
-                                }
-
-                                $fullname = '';
-                                if (isset($post['user']['full_name'])) {
-                                    $fullname = utf8_decode($post['user']['full_name']);
-                                }
-
-                                $media = '';
-                                if (isset($post['images']['standard_resolution']['url'])) {
-                                    $media = $post['images']['standard_resolution']['url'];
-                                }
-
-                                $link = '';
-                                if (isset($post['link'])) {
-                                    $link = $post['link'];
-                                }
-
-                                $date = date('Y-m-d H:i:s');
-                                if (isset($post['created_time'])) {
-                                    $date = date('Y-m-d H:i:s', $post['created_time']);
-                                }
-
-                                $item = array(
-                                    'source'      => 'instagram',
-                                    'source_id'   => $post['id'],
-                                    'source_type' => 'post',
-                                    'language'    => 'nl',
-                                    'avatar'      => $avatar,
-                                    'username'    => $username,
-                                    'fullname'    => $fullname,
-                                    'content'     => $this->formatContent($post, 'instagram'),
-                                    'image'       => $media,
-                                    'link'        => $link,
-                                    'date'        => $date,
-                                    'data'        => $post
-                                );
-
-                                $this->handlePost('instagram', $post['id'], $item);
-                            }
+                            $this->importInstagramItem($post);
                         }
                     }
                 }
@@ -568,15 +472,23 @@ class SocialImport
             $request = new FacebookRequest(
                 $session,
                 'GET',
-                '/' . $facebookPage . '/feed'
-                //'/' . $facebookPage . '/feed?limit=40'
+                '/' . $facebookPage . '/feed?fields=created_time,link,message,object_id,status_type,type,from'
             );
 
             $response    = $request->execute();
             $graphObject = $response->getGraphObject();
-            $getPosts    =  $graphObject->getProperty('data');
+            $getPosts    = $graphObject->getProperty('data');
             $posts       = $getPosts->asArray();
 
+            $requestPageInfo  = new FacebookRequest(
+                $session,
+                'GET',
+                '/' . $facebookPage
+            );
+
+            $pageResponse = $requestPageInfo->execute();
+            $pageInfo     = $pageResponse->getGraphObject();
+            $username     = $pageInfo->getProperty('name');
             foreach ($posts as $post) {
                 if (isset($post->id)) {
                     $plainName = '';
@@ -590,10 +502,10 @@ class SocialImport
                     }
 
                     $avatar   = '';
-                    $username = (isset($post->from->name)) ? $post->from->name : '';
-                    $fullname = (isset($post->from->name)) ? $post->from->name : '';
+                    $username = (isset($post->from->name)) ? $post->from->name : $username;
+                    $fullname = (isset($post->from->name)) ? $post->from->name : $username;
                     $date     = (isset($post->created_time)) ? strtotime($post->created_time) : time();
-                    $link     = (isset($post->link)) ? $post->link : '';
+                    $link     = (isset($post->link)) ? $post->link : 'https://www.facebook.com/' . $facebookPage;
 
                     $media = '';
                     if (isset($post->status_type) && $post->status_type == 'added_photos') {
@@ -618,6 +530,69 @@ class SocialImport
                     $this->handlePost('facebook', $post->id, $item);
                 }
             }
+        }
+    }
+
+    /**
+     * Prepare Instagram Item response and handle the import.
+     *
+     * @param $post
+     * @param $instagramUsername
+     */
+    private function importInstagramItem($post, $instagramUsername = '')
+    {
+        if (isset($post['id'])) {
+            $avatar = '';
+            if (isset($post['user']['profile_picture'])) {
+                $avatar = $post['user']['profile_picture'];
+            }
+
+            $username = '';
+            if (isset($post['user']['username'])) {
+                $username = utf8_decode($post['user']['username']);
+            }
+
+            $fullname = '';
+            if (isset($post['user']['full_name'])) {
+                $fullname = utf8_decode($post['user']['full_name']);
+            }
+
+            $media = '';
+            if (isset($post['images']['standard_resolution']['url'])) {
+                $media = $post['images']['standard_resolution']['url'];
+            }
+
+            $link = '';
+            if (isset($post['link'])) {
+                $link = $post['link'];
+            }
+
+            $date = date('Y-m-d H:i:s');
+            if (isset($post['created_time'])) {
+                $date = date('Y-m-d H:i:s', $post['created_time']);
+            }
+
+            $sourceType = 'mention';
+            if ($instagramUsername == $username) {
+                $sourceType = 'post';
+            }
+
+            $item = array(
+                'source'      => 'instagram',
+                'source_id'   => $post['id'],
+                'source_type' => $sourceType,
+                'language'    => 'nl',
+                'avatar'      => $avatar,
+                'username'    => $username,
+                'fullname'    => $fullname,
+                'content'     => $this->formatContent($post, 'instagram'),
+                'image'       => $media,
+                'link'        => $link,
+                'date'        => $date,
+                'data'        => $post
+            );
+
+            $this->handlePost('instagram', $post['id'], $item);
         }
     }
 
@@ -804,7 +779,7 @@ class SocialImport
     {
         /**
          * Code URL (manual in browser for testing purposes):
-         * https://instagram.com/oauth/authorize/?client_id=fe8d276749044010b3897ca4e5a286e9&redirect_uri=http%3A%2F%2Fvanderlijn.nl.sander%2Fassets%2Fcomponents%2Fsocialhub%2Fgetinstagramcode.php&response_type=code&scope=public_content
+         * https://instagram.com/oauth/authorize/?client_id=[[+client_id]]&redirect_uri=[[+domain]]%2Fassets%2Fcomponents%2Fsocialhub%2Fgetinstagramcode.php&response_type=code&scope=public_content
          */
         $params = array(
             'client_id'     => $this->instagramClientId,
@@ -812,6 +787,7 @@ class SocialImport
             'response_type' => 'code',
             'scope'         => 'public_content'
         );
+
         $codeUrl = 'https://instagram.com/oauth/authorize/?' . http_build_query($params);
         $this->callApi($codeUrl);
 

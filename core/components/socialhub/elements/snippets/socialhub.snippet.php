@@ -143,36 +143,34 @@ $toPlaceholder = $modx->getOption('toPlaceholder', $scriptProperties, null);
 
 $results = array();
 if (!$cache || ($cache && $modx->cacheManager->get($cacheKey) == '')) {
-    $where = array(
-        'active' => 1
-    );
+    $where[]['active'] = 1;
 
     if (!empty($filterSource)) {
-        $where['source:IN'] = explode(',', $filterSource);
+        $where[]['source:IN'] = explode(',', $filterSource);
     }
 
     if (!empty($filterSourceId)) {
-        $where['source_id:IN'] = explode(',', $filterSourceId);
+        $where[]['source_id:IN'] = explode(',', $filterSourceId);
     }
 
     if (!empty($filterSourceType)) {
-        $where['source_type:IN'] = explode(',', $filterSourceType);
+        $where[]['source_type:IN'] = explode(',', $filterSourceType);
     }
 
     if (!empty($filterLanguage)) {
-        $where['language:IN'] = explode(',', $filterLanguage);
+        $where[]['language:IN'] = explode(',', $filterLanguage);
     }
 
     if (!empty($filterUsername)) {
-        $where['username:IN'] = explode(',', $filterUsername);
+        $where[]['username:IN'] = explode(',', $filterUsername);
     }
 
     if (!empty($filterFullname)) {
-        $where['fullname:IN'] = explode(',', $filterFullname);
+        $where[]['fullname:IN'] = explode(',', $filterFullname);
     }
 
     if ($filterImage) {
-        $where['image:!='] = '';
+        $where[]['image:!='] = '';
     }
 
     $query = $modx->newQuery('SocialHubItem');
