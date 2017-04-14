@@ -13,12 +13,13 @@ if (isset($_GET['code']) && !empty($_GET['code'])) {
     $setting = $modx->getObject('modSystemSetting', 'socialhub.instagram_code');
     $setting->set('value', $_GET['code']);
 
+    $corePath = $modx->getOption('socialhub.core_path', null, MODX_CORE_PATH . 'components/socialhub/');
     if ($setting->save()) {
         $cm = $modx->getCacheManager();
         $cm->refresh();
         /*
          * Has the code, now import feed.
          */
-        require_once MODX_CORE_PATH . 'components/socialhub/elements/cronjobs/social-import.php';
+        require_once $corePath . 'elements/cronjobs/social-import.php';
     }
 }

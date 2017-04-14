@@ -11,6 +11,11 @@ class SocialImport
     private $modx = null;
 
     /**
+     * @var string
+     */
+    private $corePath = '';
+
+    /**
      * Holds Instagram Client ID.
      *
      * @var string
@@ -38,6 +43,8 @@ class SocialImport
     {
         $this->loadModx();
 
+
+
         if (!$this->loadSocialHub()) {
             return false;
         }
@@ -50,8 +57,14 @@ class SocialImport
      */
     private function loadModx()
     {
-        $coreConfig = '/public_html/config.core.php';
-        require_once dirname(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))))) . $coreConfig;
+        if (file_exists(
+            dirname(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))))) . '/public_html/config.core.php'
+        )) {
+            require_once dirname(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))))) . '/public_html/config.core.php';
+        } elseif (dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))) . '/config.core.php') {
+            require_once dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))) . '/config.core.php';
+        }
+
         require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
 
         $this->modx = new modX();
@@ -60,6 +73,8 @@ class SocialImport
         $this->modx->getService('error', 'error.modError');
         $this->modx->setLogLevel(modX::LOG_LEVEL_INFO);
         $this->modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
+
+        $this->corePath = $this->modx->getOption('socialhub.core_path', null, MODX_CORE_PATH . 'components/socialhub/');
     }
 
     /**
@@ -96,7 +111,11 @@ class SocialImport
         $cm->refresh(['system_settings' => array()]);
 
         if (!defined('INSTAGRAM_REDIRECT_URI')) {
-            define('INSTAGRAM_REDIRECT_URI', MODX_SITE_URL . 'assets/components/socialhub/getinstagramcode.php');
+            $path = $this->modx->getOption('socialhub.assets_path', null, MODX_ASSETS_PATH);
+            $path = str_replace(MODX_BASE_PATH, '', $path);
+            $url  = MODX_SITE_URL . $path;
+
+            define('INSTAGRAM_REDIRECT_URI', $url . 'getinstagramcode.php');
         }
 
         $this->activeDefaultValue   = (int) $this->modx->getOption('socialhub.active_default');
@@ -188,7 +207,7 @@ class SocialImport
             !empty($twitterConsKey) &&
             !empty($twitterConsSecret)
         ) {
-            require_once(MODX_CORE_PATH . 'components/socialhub/lib/twitter/TwitterAPIExchange.php');
+            require_once($this->corePath . 'lib/twitter/TwitterAPIExchange.php');
 
             $apiSettings = array(
                 'oauth_access_token'        => $twitterToken,
@@ -383,16 +402,30 @@ class SocialImport
      */
     private function importYoutube()
     {
-        $youtubeUsername = trim($this->modx->getOption('socialhub.youtube_username'));
-        $youtubeApiKey = trim($this->modx->getOption('socialhub.youtube_api_key'));
+        $youtubeChannelID = trim($this->modx->getOption('socialhub.youtube_channel_id'));
+        $youtubeApiKey    = trim($this->modx->getOption('socialhub.youtube_api_key'));
 
-        if (!empty($youtubeUsername) &&
+        if (!empty($youtubeChannelID) &&
             !empty($youtubeApiKey)
         ) {
-            $youtubeUrl = 'https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername=';
-            $youtubeUrl .= trim($youtubeUsername) . '&key=' . $youtubeApiKey;
+            $youtubeUrl = 'https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=';
+            $youtubeUrl .= trim($youtubeChannelID) . '&key=' . $youtubeApiKey;
             $playlist   = file_get_contents($youtubeUrl);
             $playlist   = $this->modx->fromJSON($playlist);
+
+            $channelUrl  = 'https://www.googleapis.com/youtube/v3/channels?part=snippet&id=' . $youtubeChannelID . '&key=' . $youtubeApiKey;
+            $channelInfo = file_get_contents($channelUrl);
+            $channelInfo = $this->modx->fromJSON($channelInfo);
+
+            $youtubeUsername = '';
+            $avatar          = '';
+            if (isset($channelInfo['items'][0]['snippet']['title'])) {
+                $youtubeUsername = $channelInfo['items'][0]['snippet']['title'];
+            }
+
+            if (isset($channelInfo['items'][0]['snippet']['thumbnails']['high']['url'])) {
+                $avatar = $channelInfo['items'][0]['snippet']['thumbnails']['high']['url'];
+            }
 
             if (isset($playlist['items'][0]['contentDetails']['relatedPlaylists']['uploads'])) {
                 $playlistId = $playlist['items'][0]['contentDetails']['relatedPlaylists']['uploads'];
@@ -404,10 +437,6 @@ class SocialImport
                 if ($posts['items']) {
                     foreach ($posts['items'] as $post) {
                         if (isset($post['snippet']['resourceId']['videoId'])) {
-                            $avatar   = '';
-                            $username = $youtubeUsername;
-                            $fullname = $youtubeUsername;
-
                             $media = '';
                             if (isset($post['snippet']['thumbnails']['high']['url'])) {
                                 $media = $post['snippet']['thumbnails']['high']['url'];
@@ -425,8 +454,8 @@ class SocialImport
                                 'source_type' => 'post',
                                 'language'    => 'nl',
                                 'avatar'      => $avatar,
-                                'username'    => $username,
-                                'fullname'    => $fullname,
+                                'username'    => $youtubeUsername,
+                                'fullname'    => $youtubeUsername,
                                 'content'     => $this->formatContent($post, 'youtube'),
                                 'image'       => $media,
                                 'link'        => $link,
@@ -455,8 +484,8 @@ class SocialImport
             !empty($facebookAppSecret) &&
             !empty($facebookPage)
         ) {
-            define('FACEBOOK_SDK_V4_SRC_DIR', MODX_CORE_PATH . 'components/socialhub/lib/facebook/src/Facebook/');
-            require_once MODX_CORE_PATH . 'components/socialhub/lib/facebook/autoload.php';
+            define('FACEBOOK_SDK_V4_SRC_DIR', $this->corePath . '/lib/facebook/src/Facebook/');
+            require_once $this->corePath . '/lib/facebook/autoload.php';
 
             FacebookSession::setDefaultApplication($facebookAppId, $facebookAppSecret);
             $session = FacebookSession::newAppSession();
@@ -639,12 +668,14 @@ class SocialImport
             )
         );
 
+        $sourceData['active'] = $this->activeDefaultValue;
+
         $result = $this->modx->getObject('SocialHubItem', $c);
         if ($result === null) {
             $result = $this->modx->newObject('SocialHubItem');
+        } else {
+            $sourceData['active'] = $result->get('active');
         }
-
-        $sourceData['active'] = $this->activeDefaultValue;
 
         $result->fromArray($sourceData);
         $result->save();
@@ -834,6 +865,9 @@ class SocialImport
         $responseInfo = curl_getinfo($curl);
         $curlError    = curl_error($curl);
         curl_close($curl);
+
+        var_dump($url);
+        exit;
 
         /*
          * If curl failed somehow try file_get_contents.

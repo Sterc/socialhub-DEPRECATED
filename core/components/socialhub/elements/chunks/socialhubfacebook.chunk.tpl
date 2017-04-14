@@ -1,3 +1,3 @@
-<div class="facebook">
+<div class="socialhub-item facebook">
     [[+content]]
 </div>

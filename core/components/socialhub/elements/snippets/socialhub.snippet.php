@@ -98,7 +98,6 @@
  * For example: socialhub.output [default=NULL]
  *
  */
-
 $socialhub = $modx->getService(
     'socialhub',
     'SocialHub',
