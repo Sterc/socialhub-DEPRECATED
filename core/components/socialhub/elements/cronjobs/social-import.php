@@ -93,7 +93,7 @@ class SocialImport
     private function run()
     {
         $cm = $this->modx->getCacheManager();
-        $cm->refresh(['system_settings' => []]);
+        $cm->refresh(['system_settings' => array()]);
 
         if (!defined('INSTAGRAM_REDIRECT_URI')) {
             define('INSTAGRAM_REDIRECT_URI', MODX_SITE_URL . 'assets/components/socialhub/getinstagramcode.php');
@@ -154,7 +154,7 @@ class SocialImport
                     $this->saveSystemSetting('socialhub.instagram_code', '');
 
                     $cm = $this->modx->getCacheManager();
-                    $cm->refresh(['system_settings' => []]);
+                    $cm->refresh(['system_settings' => array()]);
                 }
             }
         }
