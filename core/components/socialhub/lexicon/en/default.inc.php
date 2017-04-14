@@ -21,6 +21,9 @@ $_lang['socialhub.deny'] = 'Deny';
 $_lang['socialhub.msg.approve'] = 'After approval this feed can be shown on the website.';
 $_lang['socialhub.msg.deny'] = 'After denying this feed cannot be shown on the website.';
 
+$_lang['socialhub.status.approved'] = 'Approved';
+$_lang['socialhub.status.denied']   = 'Denied';
+
 $_lang['socialhub.item.name'] = 'Create Item';
 $_lang['socialhub.item.user'] = 'User';
 $_lang['socialhub.item.date'] = 'Datum';

@@ -1,17 +1,19 @@
 SocialHub.grid.Items = function(config) {
     config = config || {};
+
+    var defaultItemState = 1;
+
     Ext.applyIf(config,{
         id: 'socialhub-grid-items'
         ,url: SocialHub.config.connectorUrl
         ,baseParams: {
             action: 'mgr/item/getlist'
-            ,active: 0
+            ,active: defaultItemState
             ,source: config.source
             ,language: config.language
         }
         ,save_action: 'mgr/item/updatefromgrid'
         ,autosave: true
-        // ,fields: ['id','username', 'fullname', 'avatar','content', 'image','type', 'link', 'approved', 'date']
         ,fields: ['id','source','username', 'fullname', 'avatar', 'content', 'image', 'link', 'active', 'date']
         ,autoHeight: true
         ,paging: true
@@ -46,15 +48,14 @@ SocialHub.grid.Items = function(config) {
                 scope: this
             } 
         }]
-        ,tbar: [
-        '->',
+        ,tbar: ['->',
         {
             xtype: 'modx-combo'
             ,width:200
             ,store: new Ext.data.SimpleStore({
                 data: [
-                    [0, 'Niet goedgekeurd'],
-                    [1, 'Wel goedgekeurd'],
+                    [0, _('socialhub.status.denied')],
+                    [1, _('socialhub.status.approved')],
                 ],
                 id: 0,
                 fields: ["value", "text"]
@@ -62,7 +63,7 @@ SocialHub.grid.Items = function(config) {
             ,mode: "local"
             ,valueField: "value"
             ,displayField: "text"
-            ,value: 0
+            ,value: defaultItemState
             ,listeners: {
                 'select': {fn:this.filterApproved,scope:this}
             }
