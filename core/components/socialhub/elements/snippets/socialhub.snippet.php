@@ -7,7 +7,7 @@
  * @author Johan van der Molen
  * @author Sander Drenth
  *
- * @copyright Copyright 2015, Sterc
+ * @copyright Copyright 2017, Sterc
  *
  * FILTERS:
  *

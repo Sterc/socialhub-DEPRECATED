@@ -48,7 +48,7 @@
             "value": ""
           }, {
             "key": "active_default",
-            "type": "textfield",
+            "type": "combo-boolean",
             "area": "General",
             "value": 0
           }, {
