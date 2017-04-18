@@ -27,9 +27,7 @@ The SocialHub snippet can be used to retrieve the social posts from the database
 | filterLanguage         |                        | Comma delimited list of languages to filter on, for example: nl,en.                                                                  |
 | filterUsername         |                        | Comma delimited list of usernames to filter on, for example: johndoe, janedoe                                                        |
 | filterFullname         |                        | Comma delimited list of fullnames to filter on, for example: johndoe, janedoe                                                        |
-| filterImage            | 0                      | Only retrieve posts that have an image. Possible values are either 0 or 1.                                                           |
-| unreadCountPlaceholder | socialhub.unread_posts | The name of the placeholder of the unread posts counter.                                                                             |
-| unreadCountKey         | socialhub_unread_data  | The key of the unread count cookie data holder.                                                                                      |
+| filterImage            | 0                      | Only retrieve posts that have an image. Possible values are either 0 or 1.                                                           |                                                                           |
 | sortBy                 | date                   | Field to sort the posts by.                                                                                                          |
 | sortDir                | desc                   | Order which to sort the posts by.                                                                                                    |
 | limit                  | 30                     | Limit the amount of posts.                                                                                                           |

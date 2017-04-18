@@ -57,15 +57,6 @@
  * Possible values: 0 or 1. [default=0]
  *
  *
- * UNREAD COUNT:
- *
- * &unreadCountPlaceholder - (Opt) The name of the placeholder of the unread posts counter.
- * For example: socialhub.unread_posts [default=socialhub.unread_posts]
- *
- * &unreadCountKey - (Opt) The key of the unread count cookie data holder.
- * For example: socialhub_unread_data [default=socialhub_unread_data]
- *
- *
  * TEMPLATES:
  *
  * &twitterTpl - (Opt) The chunk that is used for a twitter post.
@@ -127,9 +118,6 @@ $sortDir = $modx->getOption('sortDir', $scriptProperties, 'DESC');
 $limit   = (int) $modx->getOption('limit', $scriptProperties, 30);
 $offset  = (int) $modx->getOption('offset', $scriptProperties, 0);
 $toJSON  = $modx->getOption('toJSON', $scriptProperties, false);
-
-$unreadCountPlaceholder = $modx->getOption('unreadCountPlaceholder', $scriptProperties, 'socialhub.unread_posts');
-$unreadCountKey         = $modx->getOption('unreadCountKey', $scriptProperties, 'socialhub_unread_data');
 
 $twitterTpl   = $modx->getOption('twitterTpl', $scriptProperties, 'socialhubTwitter');
 $facebookTpl  = $modx->getOption('facebookTpl', $scriptProperties, 'socialhubFacebook');
@@ -195,21 +183,7 @@ if (!$cache || ($cache && $modx->cacheManager->get($cacheKey) == '')) {
 }
 
 $output      = '';
-$counter     = 0;
-$unreadCount = 0;
 foreach ($results as $result) {
-    if ($counter < 1) {
-        setcookie($unreadCountKey, $result['id'], time() + 60*60*24, '/');
-    }
-
-    if (isset($_COOKIE[$unreadCountKey]) &&
-        $_COOKIE[$unreadCountKey] == $result['id']
-    ) {
-        $unreadCount = $counter;
-    }
-
-    $counter++;
-
     if (isset($result['source'])) {
         switch ($result['source']) {
             case 'twitter':
@@ -235,8 +209,6 @@ if (!empty($output)) {
 }
 
 if (!$toJSON) {
-    $modx->setPlaceholder($unreadCountPlaceholder, $unreadCount);
-
     if (!empty($toPlaceholder)) {
         $modx->setPlaceholder($toPlaceholder, $output);
 
@@ -247,8 +219,7 @@ if (!$toJSON) {
 } else {
     return json_encode(
         array(
-            'html'   => $output,
-            'unread' => $unreadCount
+            'html'   => $output
         )
     );
 }
