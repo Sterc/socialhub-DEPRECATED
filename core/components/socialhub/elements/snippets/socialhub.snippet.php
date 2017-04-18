@@ -49,6 +49,8 @@
  * &limit - (Opt) Limit the amount of posts.
  * Must be a numeric value. [default=30]
  *
+ * &offset - (Opt) Retrieve posts by the defined offset.
+ * Must be a numeric value. [default=0]
  *
  * FORMAT:
  *
@@ -58,14 +60,14 @@
  *
  * UNREAD COUNT:
  *
- * &unreadCountPlaceholder - (Opt) The name of the placeholder of unread posts.
+ * &unreadCountPlaceholder - (Opt) The name of the placeholder of the unread posts counter.
  * For example: socialhub.unread_posts [default=socialhub.unread_posts]
  *
  * &unreadCountKey - (Opt) The key of the unread count cookie data holder.
  * For example: socialhub_unread_data [default=socialhub_unread_data]
  *
  *
- * TEMPlATES:
+ * TEMPLATES:
  *
  * &twitterTpl - (Opt) The chunk that is used for a twitter post.
  * For example: yourTwitter [default=socialhubTwitter]
@@ -94,7 +96,7 @@
  * &cacheKey - (Opt) The cache key.
  * For example: homeSocialhubPosts [default=socialhubPosts]
  *
- * &toPlaceholder - (Opt) If u want the output in placeholder instead of a return.
+ * &toPlaceholder - (Opt) If you want the output in placeholder instead of a return.
  * For example: socialhub.output [default=NULL]
  *
  */

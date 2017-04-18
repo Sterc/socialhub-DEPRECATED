@@ -363,6 +363,7 @@ class SocialImport
                 !empty($instagramUsername)
             ) {
                 foreach ($tags as $tag) {
+                    $tag = 'dublin';
                     $tag                  = str_replace('#', '', $tag);
                     $instagramSearchUrl   = 'https://api.instagram.com/v1/tags/';
                     $instagramSearchUrl   .= $tag . '/media/recent';
