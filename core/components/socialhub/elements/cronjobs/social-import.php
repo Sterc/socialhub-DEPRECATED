@@ -752,19 +752,11 @@ class SocialImport
                     );
                 }
             }
-
-            //$content = htmlentities($content, ENT_NOQUOTES, 'UTF-8');
-            //$content = utf8_encode($content);
-            //$content = preg_replace(
-            //'@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@',
-            //'<a href="$1" target="_blank">$1</a>', $content
-            //);
-            //$content = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1<span class="hashtag">#\2</span>', $content);
         }
 
         if ($source == 'instagram' || $source == 'facebook' || $source == 'youtube') {
             $content = preg_replace(
-                '@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s])?)?)@',
+                '@(https?://([-\w\.]+[-\w])+(:\d+)?(/([\w/_\.#-]*(\?\S+)?[^\.\s\)])?)?)@',
                 '<a href="$1" target="_blank">$1</a>',
                 $content
             );
