@@ -4,6 +4,7 @@
 A MODX Extra which allows you to display social feed from Twitter, Facebook, Instagram and Youtube.
 
 It retrieves the following content per Social Media channel:
+
 * **Twitter:** Retrieve posts from your own user timeline and/or retrieve posts by specifying one or multiple search keywords.
 * **Facebook:** Retrieve posts from your own user timeline.
 * **Instagram:** Retrieve posts from your own user timeline and/or retrieve posts by specifying one or multiple search keywords. **Note**: In order to retrieve posts from other users by using the search query the app needs the public_scope permission: https://www.instagram.com/developer/authorization/
