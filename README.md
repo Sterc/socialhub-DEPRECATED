@@ -41,7 +41,7 @@ The SocialHub snippet can be used to retrieve the social posts from the database
 | cache                  | 1                      | If you want to cache the output.                                                                                                     |
 | cacheTime              | 120                    | The cache time.                                                                                                                      |
 | cacheKey               | socialhubPosts         | The cache key.                                                                                                                       |
-| toPlaceholder          |                        | If you want the output in placeholder instead of a return.                                                                           |
+| toPlaceholder          |                        | If you want the output in placeholder provide the placeholder key.                                                                           |
 
 
 ## Requirements ##

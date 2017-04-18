@@ -212,7 +212,7 @@ if (!$toJSON) {
     if (!empty($toPlaceholder)) {
         $modx->setPlaceholder($toPlaceholder, $output);
 
-        return true;
+        return '';
     }
 
     return $output;
