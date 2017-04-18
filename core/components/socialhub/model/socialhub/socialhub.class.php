@@ -4,6 +4,8 @@
  * The main SocialHub service class.
  *
  * @package socialhub
+ *
+ * @author Sterc <modx@sterc.nl>
  */
 
 class SocialHub

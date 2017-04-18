@@ -3,7 +3,7 @@
     "lowCaseName": "socialhub",
     "description": "",
     "author": "Sterc",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "package":{
         "menus": [{
             "text": "socialhub.menu.socialhub"

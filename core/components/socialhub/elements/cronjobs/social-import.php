@@ -1,4 +1,9 @@
 <?php
+/**
+ * @author Sterc <modx@sterc.nl>
+ *
+ * Cronjob to handle import of social feed.
+ */
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 
@@ -456,7 +461,7 @@ class SocialImport
                                 'source'      => 'youtube',
                                 'source_id'   => $post['snippet']['resourceId']['videoId'],
                                 'source_type' => 'post',
-                                'language'    => 'nl',
+                                'language'    => 'en',
                                 'avatar'      => $avatar,
                                 'username'    => $youtubeUsername,
                                 'fullname'    => $youtubeUsername,

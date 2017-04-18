@@ -4,8 +4,7 @@
  *
  * Snippet to show your social hub data.
  *
- * @author Johan van der Molen
- * @author Sander Drenth
+ * @author Sterc <modx@sterc.nl>
  *
  * @copyright Copyright 2017, Sterc
  *
@@ -126,6 +125,7 @@ $filterImage      = $modx->getOption('filterImage', $scriptProperties, false);
 $sortBy  = $modx->getOption('sortBy', $scriptProperties, 'date');
 $sortDir = $modx->getOption('sortDir', $scriptProperties, 'DESC');
 $limit   = (int) $modx->getOption('limit', $scriptProperties, 30);
+$offset  = (int) $modx->getOption('offset', $scriptProperties, 0);
 $toJSON  = $modx->getOption('toJSON', $scriptProperties, false);
 
 $unreadCountPlaceholder = $modx->getOption('unreadCountPlaceholder', $scriptProperties, 'socialhub.unread_posts');
@@ -176,7 +176,7 @@ if (!$cache || ($cache && $modx->cacheManager->get($cacheKey) == '')) {
 
     $query = $modx->newQuery('SocialHubItem');
     $query->where($where);
-    $query->limit($limit);
+    $query->limit($limit, $offset);
     $query->sortby($sortBy, $sortDir);
     $posts = $modx->getCollection('SocialHubItem', $query);
 
