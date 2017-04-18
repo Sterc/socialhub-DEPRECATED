@@ -1,5 +1,4 @@
 <?php
-
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 
@@ -60,7 +59,8 @@ class SocialImport
         if (file_exists(
             dirname(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))))) . '/public_html/config.core.php'
         )) {
-            require_once dirname(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))))) . '/public_html/config.core.php';
+            $basePath = dirname(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))));
+            require_once  $basePath . '/public_html/config.core.php';
         } elseif (dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))) . '/config.core.php') {
             require_once dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))) . '/config.core.php';
         }
@@ -294,9 +294,11 @@ class SocialImport
                 $searchUrl   = 'https://api.twitter.com/1.1/search/tweets.json';
                 $searchQuery = '?q=' . $searchQuery;
                 $searchRequestMethod = 'GET';
-                $searchTweets = $this->modx->fromJSON($twitter->setGetfield($searchQuery)
-                                                          ->buildOauth($searchUrl, $searchRequestMethod)
-                                                          ->performRequest());
+                $searchTweets = $this->modx->fromJSON(
+                    $twitter->setGetfield($searchQuery)
+                            ->buildOauth($searchUrl, $searchRequestMethod)
+                            ->performRequest()
+                );
 
                 if ($searchTweets && isset($searchTweets['statuses'])) {
                     foreach ($searchTweets['statuses'] as $tweet) {
@@ -404,16 +406,17 @@ class SocialImport
     {
         $youtubeChannelID = trim($this->modx->getOption('socialhub.youtube_channel_id'));
         $youtubeApiKey    = trim($this->modx->getOption('socialhub.youtube_api_key'));
+        $youtubeApiUrl    = 'https://www.googleapis.com/youtube/v3/';
 
         if (!empty($youtubeChannelID) &&
             !empty($youtubeApiKey)
         ) {
-            $youtubeUrl = 'https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=';
+            $youtubeUrl = $youtubeApiUrl . 'channels?part=contentDetails&id=';
             $youtubeUrl .= trim($youtubeChannelID) . '&key=' . $youtubeApiKey;
             $playlist   = file_get_contents($youtubeUrl);
             $playlist   = $this->modx->fromJSON($playlist);
 
-            $channelUrl  = 'https://www.googleapis.com/youtube/v3/channels?part=snippet&id=' . $youtubeChannelID . '&key=' . $youtubeApiKey;
+            $channelUrl  = $youtubeApiUrl . 'channels?part=snippet&id=' . $youtubeChannelID . '&key=' . $youtubeApiKey;
             $channelInfo = file_get_contents($channelUrl);
             $channelInfo = $this->modx->fromJSON($channelInfo);
 
@@ -429,7 +432,7 @@ class SocialImport
 
             if (isset($playlist['items'][0]['contentDetails']['relatedPlaylists']['uploads'])) {
                 $playlistId = $playlist['items'][0]['contentDetails']['relatedPlaylists']['uploads'];
-                $postsUrl   = 'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=';
+                $postsUrl   = $youtubeApiUrl . 'playlistItems?part=snippet&playlistId=';
                 $postsUrl   .= $playlistId . '&key=' . $youtubeApiKey;
                 $posts      = file_get_contents($postsUrl);
                 $posts      = $this->modx->fromJSON($posts);
@@ -857,9 +860,6 @@ class SocialImport
         $responseInfo = curl_getinfo($curl);
         $curlError    = curl_error($curl);
         curl_close($curl);
-
-        var_dump($url);
-        exit;
 
         /*
          * If curl failed somehow try file_get_contents.
