@@ -26,6 +26,7 @@ In order to retrieve the Instagram Access Token you'll need to specify the Insta
 https://instagram.com/oauth/authorize/?client_id=CLIENTID&redirect_uri=DOMAIN/assets/components/socialhub/getinstagramcode.php&response_type=code&scope=public_content
 
 After the authorization you will be redirected to the specified redirect URI and the Instagram Code will be stored automatically for you.
+Since the Instagram Code can only be used once, it will automatically be unset after it has been used to retrieve the Access Token.
 
 ### SocialHub Cronjob ###
 The SocialHub cronjob imports the Social Feed from the social media accounts and store the data into the database.
