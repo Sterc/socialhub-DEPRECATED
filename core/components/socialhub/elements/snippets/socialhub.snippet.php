@@ -4,10 +4,9 @@
  *
  * Snippet to show your social hub data.
  *
- * @author Johan van der Molen
- * @author Sander Drenth
+ * @author Sterc <modx@sterc.nl>
  *
- * @copyright Copyright 2015, Sterc
+ * @copyright Copyright 2017, Sterc
  *
  * FILTERS:
  *
@@ -49,6 +48,8 @@
  * &limit - (Opt) Limit the amount of posts.
  * Must be a numeric value. [default=30]
  *
+ * &offset - (Opt) Retrieve posts by the defined offset.
+ * Must be a numeric value. [default=0]
  *
  * FORMAT:
  *
@@ -56,16 +57,7 @@
  * Possible values: 0 or 1. [default=0]
  *
  *
- * UNREAD COUNT:
- *
- * &unreadCountPlaceholder - (Opt) The name of the placeholder of unread posts.
- * For example: socialhub.unread_posts [default=socialhub.unread_posts]
- *
- * &unreadCountKey - (Opt) The key of the unread count cookie data holder.
- * For example: socialhub_unread_data [default=socialhub_unread_data]
- *
- *
- * TEMPlATES:
+ * TEMPLATES:
  *
  * &twitterTpl - (Opt) The chunk that is used for a twitter post.
  * For example: yourTwitter [default=socialhubTwitter]
@@ -94,11 +86,10 @@
  * &cacheKey - (Opt) The cache key.
  * For example: homeSocialhubPosts [default=socialhubPosts]
  *
- * &toPlaceholder - (Opt) If u want the output in placeholder instead of a return.
+ * &toPlaceholder - (Opt) If you want the output in placeholder instead of a return.
  * For example: socialhub.output [default=NULL]
  *
  */
-
 $socialhub = $modx->getService(
     'socialhub',
     'SocialHub',
@@ -125,10 +116,8 @@ $filterImage      = $modx->getOption('filterImage', $scriptProperties, false);
 $sortBy  = $modx->getOption('sortBy', $scriptProperties, 'date');
 $sortDir = $modx->getOption('sortDir', $scriptProperties, 'DESC');
 $limit   = (int) $modx->getOption('limit', $scriptProperties, 30);
+$offset  = (int) $modx->getOption('offset', $scriptProperties, 0);
 $toJSON  = $modx->getOption('toJSON', $scriptProperties, false);
-
-$unreadCountPlaceholder = $modx->getOption('unreadCountPlaceholder', $scriptProperties, 'socialhub.unread_posts');
-$unreadCountKey         = $modx->getOption('unreadCountKey', $scriptProperties, 'socialhub_unread_data');
 
 $twitterTpl   = $modx->getOption('twitterTpl', $scriptProperties, 'socialhubTwitter');
 $facebookTpl  = $modx->getOption('facebookTpl', $scriptProperties, 'socialhubFacebook');
@@ -143,41 +132,39 @@ $toPlaceholder = $modx->getOption('toPlaceholder', $scriptProperties, null);
 
 $results = array();
 if (!$cache || ($cache && $modx->cacheManager->get($cacheKey) == '')) {
-    $where = array(
-        'active' => 1
-    );
+    $where[]['active'] = 1;
 
     if (!empty($filterSource)) {
-        $where['source:IN'] = explode(',', $filterSource);
+        $where[]['source:IN'] = explode(',', $filterSource);
     }
 
     if (!empty($filterSourceId)) {
-        $where['source_id:IN'] = explode(',', $filterSourceId);
+        $where[]['source_id:IN'] = explode(',', $filterSourceId);
     }
 
     if (!empty($filterSourceType)) {
-        $where['source_type:IN'] = explode(',', $filterSourceType);
+        $where[]['source_type:IN'] = explode(',', $filterSourceType);
     }
 
     if (!empty($filterLanguage)) {
-        $where['language:IN'] = explode(',', $filterLanguage);
+        $where[]['language:IN'] = explode(',', $filterLanguage);
     }
 
     if (!empty($filterUsername)) {
-        $where['username:IN'] = explode(',', $filterUsername);
+        $where[]['username:IN'] = explode(',', $filterUsername);
     }
 
     if (!empty($filterFullname)) {
-        $where['fullname:IN'] = explode(',', $filterFullname);
+        $where[]['fullname:IN'] = explode(',', $filterFullname);
     }
 
     if ($filterImage) {
-        $where['image:!='] = '';
+        $where[]['image:!='] = '';
     }
 
     $query = $modx->newQuery('SocialHubItem');
     $query->where($where);
-    $query->limit($limit);
+    $query->limit($limit, $offset);
     $query->sortby($sortBy, $sortDir);
     $posts = $modx->getCollection('SocialHubItem', $query);
 
@@ -196,21 +183,7 @@ if (!$cache || ($cache && $modx->cacheManager->get($cacheKey) == '')) {
 }
 
 $output      = '';
-$counter     = 0;
-$unreadCount = 0;
 foreach ($results as $result) {
-    if ($counter < 1) {
-        setcookie($unreadCountKey, $result['id'], time() + 60*60*24, '/');
-    }
-
-    if (isset($_COOKIE[$unreadCountKey]) &&
-        $_COOKIE[$unreadCountKey] == $result['id']
-    ) {
-        $unreadCount = $counter;
-    }
-
-    $counter++;
-
     if (isset($result['source'])) {
         switch ($result['source']) {
             case 'twitter':
@@ -236,20 +209,17 @@ if (!empty($output)) {
 }
 
 if (!$toJSON) {
-    $modx->setPlaceholder($unreadCountPlaceholder, $unreadCount);
-
     if (!empty($toPlaceholder)) {
         $modx->setPlaceholder($toPlaceholder, $output);
 
-        return true;
+        return '';
     }
 
     return $output;
 } else {
     return json_encode(
         array(
-            'html'   => $output,
-            'unread' => $unreadCount
+            'html'   => $output
         )
     );
 }

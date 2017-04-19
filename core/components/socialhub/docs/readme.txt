@@ -1,6 +1,6 @@
 ---------------------------------------
 SocialHub
 ---------------------------------------
-Version: 0.0.1
-Author: Johan <johan@sterc.nl>
+Version: 1.0.0
+Author: Sterc <modx@sterc.nl>
 ---------------------------------------
