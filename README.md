@@ -21,6 +21,7 @@ It retrieves the following content per Social Media channel:
 * Setup and run the SocialHub Cronjob located at /core/components/socialhub/elements/cronjobs/import.php
 
 **Note: Instagram API Credentials**
+
 In order to retrieve the Instagram Access Token you'll need to specify the Instagram API Code. You can retrieve this by visiting the following url:
 https://instagram.com/oauth/authorize/?client_id=CLIENTID&redirect_uri=DOMAIN/assets/components/socialhub/getinstagramcode.php&response_type=code&scope=public_content
 
