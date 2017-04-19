@@ -28,7 +28,7 @@ https://instagram.com/oauth/authorize/?client_id=CLIENTID&redirect_uri=DOMAIN/as
 After the authorization you will be redirected to the specified redirect URI and the Instagram Code will be stored automatically for you.
 Since the Instagram Code can only be used once, it will automatically be unset after it has been used to retrieve the Access Token.
 
-### SocialHub Cronjob ###
+## Cronjob ##
 The SocialHub cronjob imports the Social Feed from the social media accounts and store the data into the database.
 Feed that has already been imported into the database will be updated.
 
@@ -36,10 +36,10 @@ The cronjob is located at:
 
 /core/components/socialhub/elements/cronjobs/import.php
 
-### SocialHub Snippet ###
+## Snippet ##
 The SocialHub snippet can be used to retrieve the social posts from the database.
 
-#### Properties ####
+### Properties ###
 | **Name**               | **Default**            | **Description**                                                                                                                      |
 |------------------------|------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
 | filterSource           |                        | Comma delimited list of sources to filter on, for example: twitter, youtube. Possible values: twitter, youtube, instagram, facebook. |
