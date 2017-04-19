@@ -23,6 +23,7 @@ class SocialHub
     /** @var array  */
     public $options = array();
 
+    /** @var mixed|string  */
     private $corePath = '';
 
     /**
@@ -45,6 +46,21 @@ class SocialHub
      * @var int
      */
     private $activeDefaultValue = 0;
+
+    /**
+     * Holds all messages that are logged in the script.
+     *
+     * @since    1.0.0
+     * @access   protected
+     * @var      array          $logs
+     */
+    protected $logs = array();
+
+    /** @var int  */
+    public $totalCreated = 0;
+
+    /** @var int  */
+    public $totalUpdated = 0;
 
     /**
      * SocialHub constructor.
@@ -122,6 +138,107 @@ class SocialHub
     }
 
     /**
+     * Add a log message to render on screen but
+     * it also can be mailed.
+     *
+     * Valid levels:
+     * - info (blue)
+     * - error (red)
+     * - notice (yellow)
+     * - success (green)
+     *
+     * @since    1.0.0
+     * @param    string    $message    The message to log.
+     * @param    string    $level      The log level.
+     *
+     * @return   bool      true
+     */
+    public function log($message, $level = 'info')
+    {
+        switch ($level) {
+            case 'error':
+                $prefix = 'ERROR::';
+                $color = 'red';
+                break;
+            case 'notice':
+                $prefix = 'NOTICE::';
+                $color = 'yellow';
+                break;
+            case 'success':
+                $prefix = 'SUCCESS::';
+                $color = 'green';
+                break;
+            case 'info':
+            default:
+                $prefix = 'INFO::';
+                $color = 'blue';
+        }
+
+        $logMessage = $this->colorize($prefix, $color). ' ' . $message;
+        $htmlMessage = '<span style="color: ' . $color . '">' . $prefix . '</span> ' . $message;
+
+        /*
+         * We use the info level in all times because
+         * we dont want this function to terminate the script.
+         *
+         * Rather use exit(); after the log function call once
+         * you have an error.
+         */
+        if (XPDO_CLI_MODE) {
+            $this->modx->log(MODX_LOG_LEVEL_INFO, $logMessage);
+        } else {
+            $this->modx->log(MODX_LOG_LEVEL_INFO, $message);
+        }
+
+        /*
+         * logMessage has CLI markup
+         * htmlMessage has HTML markup
+         * cleanMessage has no markup
+         */
+        $this->logs['logMessage'][]   = $logMessage;
+        $this->logs['htmlMessage'][]  = $htmlMessage;
+        $this->logs['cleanMessage'][] = $prefix . ' ' . $message;
+
+        return true;
+    }
+
+    /**
+     * Give a string a color for CLI use.
+     *
+     * Valid colors:
+     * - Red
+     * - Green
+     * - Yellow
+     * - Blue
+     *
+     * @since    1.0.0
+     * @param    string    $string    The string that needs the color.
+     * @param    string    $color     The color for the string.
+     *
+     * @return   string    $string
+     */
+    protected function colorize($string, $color = 'white')
+    {
+        switch ($color) {
+            case 'red':
+                return "\033[31m" . $string . "\033[39m";
+                break;
+            case 'green':
+                return "\033[32m" . $string . "\033[39m";
+                break;
+            case 'yellow':
+                return "\033[33m" . $string . "\033[39m";
+                break;
+            case 'blue':
+                return "\033[34m" . $string . "\033[39m";
+                break;
+            case 'white':
+            default:
+                return $string;
+        }
+    }
+
+    /**
      * Run the SocialHub import.
      */
     public function runImport()
@@ -194,14 +311,27 @@ class SocialHub
         /** Check if access token is already set, then import Instagram. */
         if (!$setAccessToken) {
             $this->importInstagram();
+        } elseif (!empty($this->instagramClientId) && !empty($instagramClientSecret)) {
+            $this->log('Could not import Instagram, please specify a valid Instagram code.', 'notice');
         }
+
+        $facebookAppId     = $this->modx->getOption('socialhub.facebook_app_id');
+        $facebookAppSecret = $this->modx->getOption('socialhub.facebook_app_secret');
 
         /** Only import Facebook if PHP version is higher or equal to 5.4.0 */
         if (!version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $this->importFacebook();
+            $this->importFacebook($facebookAppId, $facebookAppSecret);
+        } elseif (!empty($facebookAppId) && !empty($facebookAppSecret)) {
+            $this->log(
+                'Could not import Facebook posts because your PHP version does not
+                match the minimal required PHP version.',
+                'error'
+            );
         }
 
-        return 'Import finished.';
+        $this->log('Import finished succesfully', 'success');
+        $this->log('Total created: ' . $this->totalCreated);
+        $this->log('Total updated: ' . $this->totalUpdated);
     }
 
     /**
@@ -493,11 +623,9 @@ class SocialHub
     /**
      * Import Facebook feed.
      */
-    private function importFacebook()
+    private function importFacebook($facebookAppId, $facebookAppSecret)
     {
-        $facebookAppId     = $this->modx->getOption('socialhub.facebook_app_id');
-        $facebookAppSecret = $this->modx->getOption('socialhub.facebook_app_secret');
-        $facebookPage      = $this->modx->getOption('socialhub.facebook_page');
+        $facebookPage = $this->modx->getOption('socialhub.facebook_page');
 
         if (!empty($facebookAppId) &&
             !empty($facebookAppSecret) &&
@@ -673,6 +801,7 @@ class SocialHub
      */
     private function handlePost($source, $sourceId, $sourceData)
     {
+        $method = 'update';
         if (isset($sourceData['content']) && $sourceData['content'] === null) {
             $sourceData['content'] = '';
         }
@@ -692,12 +821,24 @@ class SocialHub
         $result = $this->modx->getObject('SocialHubItem', $c);
         if ($result === null) {
             $result = $this->modx->newObject('SocialHubItem');
+
+            $method = 'create';
         } else {
             $sourceData['active'] = $result->get('active');
         }
 
         $result->fromArray($sourceData);
-        $result->save();
+        if ($result->save()) {
+            if ($method === 'create') {
+                $this->totalCreated++;
+            } else {
+                $this->totalUpdated++;
+            }
+
+            $this->log('Storing post from: ' . $source);
+        } else {
+            $this->log('Failed storing post from source: ' . $source, 'error');
+        }
     }
 
     /**

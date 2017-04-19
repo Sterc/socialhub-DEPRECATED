@@ -30,4 +30,4 @@ $socialHub = $modx->getService(
     ) . 'model/socialhub/'
 );
 
-echo $socialHub->runImport();
+$socialHub->runImport();

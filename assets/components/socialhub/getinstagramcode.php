@@ -8,6 +8,7 @@ $modx->initialize('web');
 $modx->getService('error', 'error.modError');
 $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 $modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
+$modx->lexicon->load('socialhub:default');
 
 if (isset($_GET['code']) && !empty($_GET['code'])) {
     $setting = $modx->getObject('modSystemSetting', 'socialhub.instagram_code');
