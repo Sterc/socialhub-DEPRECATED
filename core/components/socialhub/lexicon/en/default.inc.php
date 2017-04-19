@@ -41,6 +41,10 @@ $_lang['socialhub.err.item_name_ns'] = 'Name is not specified.';
 $_lang['socialhub.err.item_remove'] = 'An error occurred while trying to remove the Item.';
 $_lang['socialhub.err.item_save'] = 'An error occurred while trying to save the Item.';
 
+$_lang['socialhub.instagramcode_stored_success'] = 'The Instagram code has been stored succesfully.';
+$_lang['socialhub.instagramcode_stored_failed']  = 'Something went wrong while trying to save the Instagram code,
+please try again.';
+$_lang['socialhub.instragram_error_nocode'] = 'Error: missing code from Instagram API response.';
 /**
  * System settings.
  */
@@ -77,8 +81,13 @@ $_lang['setting_socialhub.instagram_client_secret']      = 'Instagram Client Sec
 $_lang['setting_socialhub.instagram_client_secret_desc'] = 'Instagram Client Secret from
  https://www.instagram.com/developer/.';
 $_lang['setting_socialhub.instagram_code']               = 'Instagram Code';
-$_lang['setting_socialhub.instagram_code_desc']          = 'The Instagram Code system setting will be set automatically
- while the cronjob is running and does not have to be set manually.';
+$_lang['setting_socialhub.instagram_code_desc']          = 'The Instagram Code is necessary in order to retrieve the Instagram Access Token.
+ You can get the Access Token code by visiting the following URL. Please replace the placeholders with the correct values.
+ <a href="https://instagram.com/oauth/authorize/?client_id=CLIENTID
+&redirect_uri=DOMAIN/assets/components/socialhub/getinstagramcode.php&response_type=code&scope=public_content"
+ target="_blank">
+ https://instagram.com/oauth/authorize/?client_id=CLIENTID
+&redirect_uri=DOMAIN/assets/components/socialhub/getinstagramcode.php&response_type=code&scope=public_content</a>';
 $_lang['setting_socialhub.instagram_search_query']       = 'Instagram Search Query';
 $_lang['setting_socialhub.instagram_search_query_desc']  = 'A comma delimited list of tags to search for.';
 $_lang['setting_socialhub.instagram_user_id']            = 'Instagram User ID';

@@ -15,6 +15,25 @@ It retrieves the following content per Social Media channel:
 * Allows you to allow/disallow individual posts to be displayed on the website with a MODX CMP.
 * Comes with a snippet which accepts lots of options.
 
+## Installation guide ##
+* Install package via Package manager
+* Fill in the API credentials for the Social Media accounts you want to import feed from
+* Setup and run the SocialHub Cronjob located at /core/components/socialhub/elements/cronjobs/import.php
+
+**Note: Instagram API Credentials**
+In order to retrieve the Instagram Access Token you'll need to specify the Instagram API Code. You can retrieve this by visiting the following url:
+https://instagram.com/oauth/authorize/?client_id=CLIENTID&redirect_uri=DOMAIN/assets/components/socialhub/getinstagramcode.php&response_type=code&scope=public_content
+
+After the authorization you will be redirected to the specified redirect URI and the Instagram Code will be stored automatically for you.
+
+### SocialHub Cronjob ###
+The SocialHub cronjob imports the Social Feed from the social media accounts and store the data into the database.
+Feed that has already been imported into the database will be updated.
+
+The cronjob is located at:
+
+/core/components/socialhub/elements/cronjobs/import.php
+
 ### SocialHub Snippet ###
 The SocialHub snippet can be used to retrieve the social posts from the database.
 
@@ -42,7 +61,6 @@ The SocialHub snippet can be used to retrieve the social posts from the database
 | cacheTime              | 120                    | The cache time.                                                                                                                      |
 | cacheKey               | socialhubPosts         | The cache key.                                                                                                                       |
 | toPlaceholder          |                        | If you want the output in placeholder provide the placeholder key.                                                                           |
-
 
 ## Requirements ##
 * PHP 5.4 or higher is needed for the Facebook API. Else Facebook posts will not be imported.

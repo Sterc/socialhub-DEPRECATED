@@ -17,9 +17,11 @@ if (isset($_GET['code']) && !empty($_GET['code'])) {
     if ($setting->save()) {
         $cm = $modx->getCacheManager();
         $cm->refresh();
-        /*
-         * Has the code, now import feed.
-         */
-        require_once $corePath . 'elements/cronjobs/social-import.php';
+
+        echo $modx->lexicon('socialhub.instagramcode_stored_success');
+    } else {
+        echo $modx->lexicon('socialhub.instagramcode_stored_failed');
     }
+} else {
+    echo $modx->lexicon('socialhub.instragram_error_nocode');
 }
