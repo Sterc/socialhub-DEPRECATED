@@ -249,8 +249,12 @@ class SocialHub
         if (!defined('INSTAGRAM_REDIRECT_URI')) {
             $path = $this->modx->getOption('socialhub.assets_path', null, MODX_ASSETS_PATH);
             $path = str_replace(MODX_BASE_PATH, '', $path);
-            $url  = MODX_SITE_URL . $path;
 
+            if (strpos($path, 'components') === false) {
+                $path = rtrim($path, '/') . '/components/socialhub/';
+            }
+
+            $url  = MODX_SITE_URL . $path;
             define('INSTAGRAM_REDIRECT_URI', $url . 'getinstagramcode.php');
         }
 
