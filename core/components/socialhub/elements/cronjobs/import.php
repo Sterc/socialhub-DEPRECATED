@@ -4,13 +4,7 @@
  *
  * Cronjob to handle import of social feed.
  */
-$coreConfig = dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/config/config.inc.php';
-if (file_exists($coreConfig)) {
-    require_once $coreConfig;
-} elseif (dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))) . '/config.core.php') {
-    require_once dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))) . '/config.core.php';
-}
-
+require_once dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/config/config.inc.php';
 require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
 
 $modx = new modX();
