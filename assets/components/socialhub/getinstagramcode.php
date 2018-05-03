@@ -21,7 +21,7 @@ $socialHub = $modx->getService(
 );
 
 if (isset($_GET['code']) && !empty($_GET['code']) && isset($_GET['user']) && !empty($_GET['user'])) {
-    $setting = $modx->getObject('modSystemSetting', 'socialhub.instagram');
+    $setting = $modx->getObject('modSystemSetting', 'socialhub.instagram_json');
     $val = $modx->fromJson($setting->get('value'));
     $val[$_GET['user']]['code'] = $_GET['code'];
     $setting->set('value', json_encode($val, JSON_UNESCAPED_UNICODE));

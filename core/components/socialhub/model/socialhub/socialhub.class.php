@@ -260,12 +260,12 @@ class SocialHub
 
         $this->activeDefaultValue   = (int) $this->modx->getOption('socialhub.active_default');
 
-        $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram', null, MODX_ASSETS_PATH));
+        $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
 
         foreach ($clients as $key => $value){
 
             if(empty($value['token']) || !isset($value['token'])){
-                $instagramCode           = $value['code'];//$this->modx->getOption('socialhub.instagram_code');
+                $instagramCode           = $value['code'];
                 $this->instagramClientId = $this->modx->getOption('socialhub.instagram_client_id');
                 $instagramClientSecret   = $this->modx->getOption('socialhub.instagram_client_secret');
 
@@ -294,26 +294,28 @@ class SocialHub
             }
         }
         /* Code can only be used once, so clear code system setting */
-        $this->saveSystemSetting('socialhub.instagram', json_encode($clients, JSON_UNESCAPED_UNICODE));
+        $this->saveSystemSetting('socialhub.instagram_json', json_encode($clients, JSON_UNESCAPED_UNICODE));
         $cm = $this->modx->getCacheManager();
         $cm->refresh(['system_settings' => array()]);
 
 
-        $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram', null, MODX_ASSETS_PATH));
+        $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
         foreach ($clients as $key => $value) {
             if (!empty($value['token'])) {
-                $this->importInstagram($value);
+                $this->importInstagram($value['token'], $value['tags'], $value['username']);
             } elseif (!empty($this->instagramClientId) && !empty($instagramClientSecret)) {
                 $this->log('Could not import Instagram, please specify a valid Instagram code.', 'notice');
             }
         }
-
-
+        /** Check if access token is already set, then import Instagram. */
+        $publicToken = $this->modx->getOption('socialhub.instagram_accesstoken');
+        $tags = $this->modx->getOption('socialhub.instagram_search_query');
+        $this->importInstagram($publicToken, $tags, '' );
 
         $this->importTwitter();
         $this->importYoutube();
 
-        /** Check if access token is already set, then import Instagram. */
+
 
         $facebookAppId     = $this->modx->getOption('socialhub.facebook_app_id');
         $facebookAppSecret = $this->modx->getOption('socialhub.facebook_app_secret');
@@ -493,24 +495,21 @@ class SocialHub
     /**
      * Import Instagram feed.
      */
-    private function importInstagram($data)
+    private function importInstagram($token, $tags, $instagramUsername)
     {
-        if (!isset($data['token']) || empty($data['token'])) {
+        if (!isset($token) || empty($token)) {
             return false;
         }
 
         // if (!empty($this->instagramClientId)) {
-        $instagramSearchQuery = $data['tags'];
-        $tags                 = explode(',', $instagramSearchQuery);
+        $tags                 = explode(',', $tags);
 
-
-
-        if (!empty($tags)    ) {
+        if (!empty($tags) ) {
             foreach ($tags as $tag) {
                 $tag                  = str_replace('#', '', $tag);
                 $instagramSearchUrl   = 'https://api.instagram.com/v1/tags/';
                 $instagramSearchUrl   .= $tag . '/media/recent';
-                $instagramSearchUrl   .= '?access_token=' . $data['token'];
+                $instagramSearchUrl   .= '?access_token=' . $token;
                 $instagramSearchPosts = file_get_contents($instagramSearchUrl);
 
                 if ($instagramSearchPosts) {
@@ -524,7 +523,7 @@ class SocialHub
                 }
             }
         }else {
-            $instagramSearchUrl = 'https://api.instagram.com/v1/users/self/media/recent?access_token=' . $data['token'];
+            $instagramSearchUrl = 'https://api.instagram.com/v1/users/self/media/recent?access_token=' . $token;
             $instagramUserPosts = file_get_contents($instagramSearchUrl);
             if ($instagramUserPosts) {
                 $instagramUserPosts = $this->modx->fromJSON($instagramUserPosts);

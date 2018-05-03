@@ -67,6 +67,11 @@
             "area": "Facebook",
             "value": ""
           }, {
+            "key": "instagram_json",
+            "type": "textfield",
+            "area": "Instagram",
+            "value": ""
+          }, {
             "key": "instagram_accesstoken",
             "type": "textfield",
             "area": "Instagram",
@@ -81,17 +86,17 @@
             "type": "textfield",
             "area": "Instagram",
             "value": ""
-          }, {
+          }, /*{
             "key": "instagram_code",
             "type": "textfield",
             "area": "Instagram",
             "value": ""
-          }, {
+          }, */{
             "key": "instagram_search_query",
             "type": "textfield",
             "area": "Instagram",
             "value": ""
-          }, {
+          },/* {
             "key": "instagram_user_id",
             "type": "textfield",
             "area": "Instagram",
@@ -101,7 +106,7 @@
             "type": "textfield",
             "area": "Instagram",
             "value": ""
-          }, {
+          },*/ {
             "key": "twitter_consumer_key",
             "type": "textfield",
             "area": "Twitter",

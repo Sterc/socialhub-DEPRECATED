@@ -80,7 +80,7 @@ https://www.instagram.com/developer/.';
 $_lang['setting_socialhub.instagram_client_secret']      = 'Instagram Client Secret';
 $_lang['setting_socialhub.instagram_client_secret_desc'] = 'Instagram Client Secret from
  https://www.instagram.com/developer/.';
-$_lang['setting_socialhub.instagram_code']               = 'Instagram Code';
+//$_lang['setting_socialhub.instagram_code']               = 'Instagram Code';
 $_lang['setting_socialhub.instagram_code_desc']          = 'The Instagram Code is necessary in order to retrieve the Instagram Access Token.
  You can get the Access Token code by visiting the following URL. Please replace the placeholders with the correct values.
  <a href="https://instagram.com/oauth/authorize/?client_id=CLIENTID
@@ -90,10 +90,15 @@ $_lang['setting_socialhub.instagram_code_desc']          = 'The Instagram Code i
 &redirect_uri=DOMAIN/assets/components/socialhub/getinstagramcode.php&response_type=code&scope=public_content</a>';
 $_lang['setting_socialhub.instagram_search_query']       = 'Instagram Search Query';
 $_lang['setting_socialhub.instagram_search_query_desc']  = 'A comma delimited list of tags to search for.';
-$_lang['setting_socialhub.instagram_user_id']            = 'Instagram User ID';
-$_lang['setting_socialhub.instagram_user_id_desc']       = 'Enter your Instagram User ID.';
-$_lang['setting_socialhub.instagram_username']           = 'Instagram Username';
-$_lang['setting_socialhub.instagram_username_desc']      = 'Enter your Instagram username.';
+
+$_lang['setting_socialhub.instagram_json']       = 'JSON String with userId, username, tags';
+$_lang['setting_socialhub.instagram_json_desc']  = 'Example: {"userid": {"username": "__username__", "tags": "__tags__"}}';
+
+
+//$_lang['setting_socialhub.instagram_user_id']            = 'Instagram User ID';
+//$_lang['setting_socialhub.instagram_user_id_desc']       = 'Enter your Instagram User ID.';
+//$_lang['setting_socialhub.instagram_username']           = 'Instagram Username';
+//$_lang['setting_socialhub.instagram_username_desc']      = 'Enter your Instagram username.';
 
 /* Twitter. */
 $_lang['setting_socialhub.twitter_consumer_key']         = 'Twitter Consumer Key';
