@@ -507,17 +507,19 @@ class SocialHub
         if (!empty($tags) ) {
             foreach ($tags as $tag) {
                 $tag                  = str_replace('#', '', $tag);
-                $instagramSearchUrl   = 'https://api.instagram.com/v1/tags/';
-                $instagramSearchUrl   .= $tag . '/media/recent';
-                $instagramSearchUrl   .= '?access_token=' . $token;
-                $instagramSearchPosts = file_get_contents($instagramSearchUrl);
+                if(!empty($tag)) {
+                    $instagramSearchUrl = 'https://api.instagram.com/v1/tags/';
+                    $instagramSearchUrl .= $tag . '/media/recent';
+                    $instagramSearchUrl .= '?access_token=' . $token;
+                    $instagramSearchPosts = file_get_contents($instagramSearchUrl);
 
-                if ($instagramSearchPosts) {
-                    $instagramSearchPosts = $this->modx->fromJSON($instagramSearchPosts);
+                    if ($instagramSearchPosts) {
+                        $instagramSearchPosts = $this->modx->fromJSON($instagramSearchPosts);
 
-                    if (isset($instagramSearchPosts['data'])) {
-                        foreach ($instagramSearchPosts['data'] as $post) {
-                            $this->importInstagramItem($post, $instagramUsername);
+                        if (isset($instagramSearchPosts['data'])) {
+                            foreach ($instagramSearchPosts['data'] as $post) {
+                                $this->importInstagramItem($post, $instagramUsername);
+                            }
                         }
                     }
                 }
