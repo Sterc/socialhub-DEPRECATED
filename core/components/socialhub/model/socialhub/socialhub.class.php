@@ -259,65 +259,61 @@ class SocialHub
         }
 
         $this->activeDefaultValue   = (int) $this->modx->getOption('socialhub.active_default');
-        $this->instagramAccessToken = $this->modx->getOption('socialhub.instagram_accesstoken');
 
-        $setAccessToken = true;
-        if (!empty($this->instagramAccessToken)) {
-            $instagramUserId = $this->modx->getOption('socialhub.instagram_user_id');
+        $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram', null, MODX_ASSETS_PATH));
 
-            if (!empty($instagramUserId)) {
-                $url      = 'https://api.instagram.com/v1/users/self?access_token=' . $this->instagramAccessToken;
-                $response = file_get_contents($url);
+        foreach ($clients as $key => $value){
 
-                if ($response) {
-                    $setAccessToken = false;
+            if(empty($value['token']) || !isset($value['token'])){
+                $instagramCode           = $value['code'];//$this->modx->getOption('socialhub.instagram_code');
+                $this->instagramClientId = $this->modx->getOption('socialhub.instagram_client_id');
+                $instagramClientSecret   = $this->modx->getOption('socialhub.instagram_client_secret');
+
+                if (!empty($instagramCode) && !empty($this->instagramClientId) && !empty($instagramClientSecret)) {
+                    $fields = array(
+                        'client_id'     => $this->instagramClientId,
+                        'client_secret' => $instagramClientSecret,
+                        'redirect_uri'  => INSTAGRAM_REDIRECT_URI . '?user='.$key,
+                        'grant_type'    => 'authorization_code',
+                        'code'          => $instagramCode
+                    );
+
+                    $url      = 'https://api.instagram.com/oauth/access_token';
+                    $response = $this->callApiPost($url, $fields);
+
+                    if($response['code'] == 400){
+                        $clients[$key]['code'] = '';
+                    }
+
+                    if (!isset($response['code']) && isset($response['access_token'])) {
+                        $user = $response['user']['id'];
+                        $clients[$user]['token'] = $response['access_token'];
+                        $clients[$user]['code'] = '';
+                    }
                 }
             }
         }
+        /* Code can only be used once, so clear code system setting */
+        $this->saveSystemSetting('socialhub.instagram', json_encode($clients, JSON_UNESCAPED_UNICODE));
+        $cm = $this->modx->getCacheManager();
+        $cm->refresh(['system_settings' => array()]);
 
-        /**
-         * Check if Instagram is enabled, if so check for code.
-         * Return if code has not been set yet, first retrieve code.
-         */
-        $instagramCode           = $this->modx->getOption('socialhub.instagram_code');
-        $this->instagramClientId = $this->modx->getOption('socialhub.instagram_client_id');
-        $instagramClientSecret   = $this->modx->getOption('socialhub.instagram_client_secret');
 
-        if ($setAccessToken) {
-            if (!empty($instagramCode) && !empty($this->instagramClientId) && !empty($instagramClientSecret)) {
-                $fields = array(
-                    'client_id'     => $this->instagramClientId,
-                    'client_secret' => $instagramClientSecret,
-                    'redirect_uri'  => INSTAGRAM_REDIRECT_URI,
-                    'grant_type'    => 'authorization_code',
-                    'code'          => $instagramCode
-                );
-
-                $url      = 'https://api.instagram.com/oauth/access_token';
-                $response = $this->callApiPost($url, $fields);
-                if (!isset($response['code']) && isset($response['access_token'])) {
-                    $this->saveSystemSetting('socialhub.instagram_accesstoken', $response['access_token']);
-                    $this->instagramAccessToken = $response['access_token'];
-
-                    /* Code can only be used once, so clear code system setting */
-                    $this->saveSystemSetting('socialhub.instagram_code', '');
-
-                    $cm = $this->modx->getCacheManager();
-                    $cm->refresh(['system_settings' => array()]);
-                    $setAccessToken = false;
-                }
+        $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram', null, MODX_ASSETS_PATH));
+        foreach ($clients as $key => $value) {
+            if (!empty($value['token'])) {
+                $this->importInstagram($value);
+            } elseif (!empty($this->instagramClientId) && !empty($instagramClientSecret)) {
+                $this->log('Could not import Instagram, please specify a valid Instagram code.', 'notice');
             }
         }
+
+
 
         $this->importTwitter();
         $this->importYoutube();
 
         /** Check if access token is already set, then import Instagram. */
-        if (!$setAccessToken) {
-            $this->importInstagram();
-        } elseif (!empty($this->instagramClientId) && !empty($instagramClientSecret)) {
-            $this->log('Could not import Instagram, please specify a valid Instagram code.', 'notice');
-        }
 
         $facebookAppId     = $this->modx->getOption('socialhub.facebook_app_id');
         $facebookAppSecret = $this->modx->getOption('socialhub.facebook_app_secret');
@@ -374,8 +370,8 @@ class SocialHub
                 foreach ($twitterUsernames as $twitterUsername) {
                     $timelineQuery = '?screen_name=' . $twitterUsername;
                     $response      = $twitter->setGetfield($timelineQuery)
-                                             ->buildOauth($timelineUrl, $timelineRequestMethod)
-                                             ->performRequest();
+                        ->buildOauth($timelineUrl, $timelineRequestMethod)
+                        ->performRequest();
 
                     $newTimelineTweets = $this->modx->fromJSON($response);
                     $timelineTweets    = array_merge($timelineTweets, $newTimelineTweets);
@@ -445,8 +441,8 @@ class SocialHub
                 $searchRequestMethod = 'GET';
                 $searchTweets = $this->modx->fromJSON(
                     $twitter->setGetfield($searchQuery)
-                            ->buildOauth($searchUrl, $searchRequestMethod)
-                            ->performRequest()
+                        ->buildOauth($searchUrl, $searchRequestMethod)
+                        ->performRequest()
                 );
 
                 if ($searchTweets && isset($searchTweets['statuses'])) {
@@ -497,56 +493,49 @@ class SocialHub
     /**
      * Import Instagram feed.
      */
-    private function importInstagram()
+    private function importInstagram($data)
     {
-        if (!isset($this->instagramAccessToken) || empty($this->instagramAccessToken)) {
+        if (!isset($data['token']) || empty($data['token'])) {
             return false;
         }
 
-        if (!empty($this->instagramClientId)) {
-            $instagramSearchQuery = $this->modx->getOption('socialhub.instagram_search_query');
-            $instagramUsername    = $this->modx->getOption('socialhub.instagram_username');
-            $tags                 = explode(',', $instagramSearchQuery);
+        // if (!empty($this->instagramClientId)) {
+        $instagramSearchQuery = $data['tags'];
+        $tags                 = explode(',', $instagramSearchQuery);
 
-            if (!empty($tags) &&
-                !empty($instagramUsername)
-            ) {
-                foreach ($tags as $tag) {
-                    $tag = 'dublin';
-                    $tag                  = str_replace('#', '', $tag);
-                    $instagramSearchUrl   = 'https://api.instagram.com/v1/tags/';
-                    $instagramSearchUrl   .= $tag . '/media/recent';
-                    $instagramSearchUrl   .= '?access_token=' . $this->instagramAccessToken;
-                    $instagramSearchPosts = file_get_contents($instagramSearchUrl);
 
-                    if ($instagramSearchPosts) {
-                        $instagramSearchPosts = $this->modx->fromJSON($instagramSearchPosts);
 
-                        if (isset($instagramSearchPosts['data'])) {
-                            foreach ($instagramSearchPosts['data'] as $post) {
-                                $this->importInstagramItem($post, $instagramUsername);
-                            }
+        if (!empty($tags)    ) {
+            foreach ($tags as $tag) {
+                $tag                  = str_replace('#', '', $tag);
+                $instagramSearchUrl   = 'https://api.instagram.com/v1/tags/';
+                $instagramSearchUrl   .= $tag . '/media/recent';
+                $instagramSearchUrl   .= '?access_token=' . $data['token'];
+                $instagramSearchPosts = file_get_contents($instagramSearchUrl);
+
+                if ($instagramSearchPosts) {
+                    $instagramSearchPosts = $this->modx->fromJSON($instagramSearchPosts);
+
+                    if (isset($instagramSearchPosts['data'])) {
+                        foreach ($instagramSearchPosts['data'] as $post) {
+                            $this->importInstagramItem($post, $instagramUsername);
                         }
                     }
                 }
             }
-
-            $instagramUserId = $this->modx->getOption('socialhub.instagram_user_id');
-            if (!empty($instagramUserId)) {
-                $instagramSearchUrl = 'https://api.instagram.com/v1/users/';
-                $instagramSearchUrl .= $instagramUserId . '/media/recent?access_token=' . $this->instagramAccessToken;
-                $instagramUserPosts = file_get_contents($instagramSearchUrl);
-                if ($instagramUserPosts) {
-                    $instagramUserPosts = $this->modx->fromJSON($instagramUserPosts);
-
-                    if (isset($instagramUserPosts['data'])) {
-                        foreach ($instagramUserPosts['data'] as $post) {
-                            $this->importInstagramItem($post);
-                        }
+        }else {
+            $instagramSearchUrl = 'https://api.instagram.com/v1/users/self/media/recent?access_token=' . $data['token'];
+            $instagramUserPosts = file_get_contents($instagramSearchUrl);
+            if ($instagramUserPosts) {
+                $instagramUserPosts = $this->modx->fromJSON($instagramUserPosts);
+                if (isset($instagramUserPosts['data'])) {
+                    foreach ($instagramUserPosts['data'] as $post) {
+                        $this->importInstagramItem($post);
                     }
                 }
             }
         }
+        //     }
     }
 
     /**

@@ -17,7 +17,7 @@ SocialHub.panel.Home = function(config) {
             ,items: [{
                 title: _('socialhub.item.items')
                 ,items: [{
-                    html: '<p>'+_('socialhub.item.intro_msg')+'</p>'
+                    html: '<p>'+_('socialhub.item.intro_msg')+'</p>' + InstaAuth
                     ,border: false
                     ,bodyCssClass: 'panel-desc'
                 },{
