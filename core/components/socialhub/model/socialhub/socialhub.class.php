@@ -501,10 +501,8 @@ class SocialHub
             return false;
         }
 
-        // if (!empty($this->instagramClientId)) {
-        $tags                 = explode(',', $tags);
-
         if (!empty($tags) ) {
+            $tags                 = explode(',', $tags);
             foreach ($tags as $tag) {
                 $tag                  = str_replace('#', '', $tag);
                 if(!empty($tag)) {
