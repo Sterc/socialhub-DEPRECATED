@@ -86,27 +86,12 @@
             "type": "textfield",
             "area": "Instagram",
             "value": ""
-          }, /*{
-            "key": "instagram_code",
-            "type": "textfield",
-            "area": "Instagram",
-            "value": ""
-          }, */{
+          }, {
             "key": "instagram_search_query",
             "type": "textfield",
             "area": "Instagram",
             "value": ""
-          },/* {
-            "key": "instagram_user_id",
-            "type": "textfield",
-            "area": "Instagram",
-            "value": ""
           }, {
-            "key": "instagram_username",
-            "type": "textfield",
-            "area": "Instagram",
-            "value": ""
-          },*/ {
             "key": "twitter_consumer_key",
             "type": "textfield",
             "area": "Twitter",
