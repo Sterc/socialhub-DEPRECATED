@@ -504,7 +504,7 @@ class SocialHub
         if (!empty($tags) ) {
             $tags                 = explode(',', $tags);
             foreach ($tags as $tag) {
-                $tag                  = str_replace('#', '', $tag);
+                $tag                  = trim(str_replace('#', '', $tag));
                 if(!empty($tag)) {
                     $instagramSearchUrl = 'https://api.instagram.com/v1/tags/';
                     $instagramSearchUrl .= $tag . '/media/recent';
