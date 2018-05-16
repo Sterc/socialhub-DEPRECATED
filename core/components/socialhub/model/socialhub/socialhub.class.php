@@ -271,9 +271,9 @@ class SocialHub
 
                 if (!empty($instagramCode) && !empty($this->instagramClientId) && !empty($instagramClientSecret)) {
                     $fields = array(
-                        'client_id'     => $this->instagramClientId,
-                        'client_secret' => $instagramClientSecret,
-                        'redirect_uri'  => INSTAGRAM_REDIRECT_URI . '?user='.$key,
+                        'client_id'     => trim($this->instagramClientId),
+                        'client_secret' => trim($instagramClientSecret),
+                        'redirect_uri'  => INSTAGRAM_REDIRECT_URI . '?user='.trim($key),
                         'grant_type'    => 'authorization_code',
                         'code'          => $instagramCode
                     );
@@ -504,7 +504,7 @@ class SocialHub
         if (!empty($tags) ) {
             $tags                 = explode(',', $tags);
             foreach ($tags as $tag) {
-                $tag                  = trim(str_replace('#', '', $tag));
+                $tag                  = str_replace('#', '', $tag);
                 if(!empty($tag)) {
                     $instagramSearchUrl = 'https://api.instagram.com/v1/tags/';
                     $instagramSearchUrl .= $tag . '/media/recent';
