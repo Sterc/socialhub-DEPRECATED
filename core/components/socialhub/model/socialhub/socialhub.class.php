@@ -261,7 +261,6 @@ class SocialHub
         $this->activeDefaultValue   = (int) $this->modx->getOption('socialhub.active_default');
 
         $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
-
         foreach ($clients as $key => $value){
 
             if(empty($value['token']) || !isset($value['token'])){
@@ -293,13 +292,13 @@ class SocialHub
                 }
             }
         }
+
         /* Code can only be used once, so clear code system setting */
-        $this->saveSystemSetting('socialhub.instagram_json', json_encode($clients, JSON_UNESCAPED_UNICODE));
-        $cm = $this->modx->getCacheManager();
-        $cm->refresh(['system_settings' => array()]);
+        $save = $this->saveSystemSetting('socialhub.instagram_json', json_encode($clients, JSON_UNESCAPED_UNICODE));
+        //$cm = $this->modx->getCacheManager();
+        //$cm->refresh(['system_settings' => ['key'=>'socialhub.instagram_json']]);
+        //$clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
 
-
-        $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
         foreach ($clients as $key => $value) {
             if (!empty($value['token'])) {
                 $this->importInstagram($value['token'], $value['tags'], $value['username']);
