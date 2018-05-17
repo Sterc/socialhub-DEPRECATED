@@ -263,6 +263,7 @@ class SocialHub
         $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
         foreach ($clients as $key => $value){
 
+
             if(empty($value['token']) || !isset($value['token'])){
                 $instagramCode           = $value['code'];
                 $this->instagramClientId = $this->modx->getOption('socialhub.instagram_client_id');
