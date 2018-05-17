@@ -283,6 +283,10 @@ class SocialHub
 
                     if($response['code'] == 400){
                         $clients[$key]['code'] = '';
+                        $this->log($response['error_message'], 'error');
+                        $this->log($fields['redirect_uri'], 'notice');
+
+
                     }
 
                     if (!isset($response['code']) && isset($response['access_token'])) {
