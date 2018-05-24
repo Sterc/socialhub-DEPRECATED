@@ -33,6 +33,9 @@
  * &filterImage - (Opt) Is the image required for the post or not. [default=0]
  * Possible values: 0 (not required), 1 (required)
  *
+ * &filterContent- (Opt) Filter on post content for example: #socialhub
+ * Separate multiple values by comma. [default=NULL]
+ *
  *
  * ORDER:
  *
@@ -112,6 +115,7 @@ $filterLanguage   = $modx->getOption('filterLanguage', $scriptProperties, null);
 $filterUsername   = $modx->getOption('filterUsername', $scriptProperties, null);
 $filterFullname   = $modx->getOption('filterFullname', $scriptProperties, null);
 $filterImage      = $modx->getOption('filterImage', $scriptProperties, false);
+$filterContent     = $modx->getOption('filterContent', $scriptProperties, false);
 
 $sortBy  = $modx->getOption('sortBy', $scriptProperties, 'date');
 $sortDir = $modx->getOption('sortDir', $scriptProperties, 'DESC');
@@ -160,6 +164,11 @@ if (!$cache || ($cache && $modx->cacheManager->get($cacheKey) == '')) {
 
     if ($filterImage) {
         $where[]['image:!='] = '';
+    }
+
+    if ($filterContent) {
+        $filterContent = str_replace(',#', '|#', $filterContent);
+        $where[]['content:REGEXP'] = $filterContent;
     }
 
     $query = $modx->newQuery('SocialHubItem');
