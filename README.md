@@ -48,7 +48,8 @@ The SocialHub snippet can be used to retrieve the social posts from the database
 | filterLanguage         |                        | Comma delimited list of languages to filter on, for example: nl,en.                                                                  |
 | filterUsername         |                        | Comma delimited list of usernames to filter on, for example: johndoe, janedoe                                                        |
 | filterFullname         |                        | Comma delimited list of fullnames to filter on, for example: johndoe, janedoe                                                        |
-| filterImage            | 0                      | Only retrieve posts that have an image. Possible values are either 0 or 1.                                                           |                                                                           |
+| filterImage            | 0                      | Only retrieve posts that have an image. Possible values are either 0 or 1.                                                           |      
+| filterContent          |                        | Comma delimited list of tags to filter on, for example: #johndoe, #janedoe                                  |
 | sortBy                 | date                   | Field to sort the posts by.                                                                                                          |
 | sortDir                | desc                   | Order which to sort the posts by.                                                                                                    |
 | limit                  | 30                     | Limit the amount of posts.                                                                                                           |

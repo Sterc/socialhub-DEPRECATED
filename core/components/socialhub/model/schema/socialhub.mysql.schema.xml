@@ -9,7 +9,7 @@
         <field key="avatar" dbtype="varchar" precision="255" phptype="string" null="false" default="" />
         <field key="username" dbtype="varchar" precision="255" phptype="string" null="false" default="" />
         <field key="fullname" dbtype="varchar" precision="255" phptype="string" null="false" default="" />
-        <field key="content" dbtype="text" phptype="text" null="true" default="" />
+        <field key="content" dbtype="text" phptype="string" null="true" default="" />
         <field key="image" dbtype="varchar" precision="255" phptype="string" null="false" default="" />
         <field key="link" dbtype="varchar" precision="255" phptype="string" null="false" default="" />
         <field key="date" dbtype="timestamp" phptype="timestamp"/>

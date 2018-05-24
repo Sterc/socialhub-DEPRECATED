@@ -1,5 +1,5 @@
 Changelog for SocialHub.
 
-SocialHub 1.0.0
+SocialHub 2.0.0
 ==============
 - Initial release.
