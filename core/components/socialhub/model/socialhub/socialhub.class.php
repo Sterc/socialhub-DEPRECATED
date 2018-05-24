@@ -261,57 +261,58 @@ class SocialHub
         $this->activeDefaultValue   = (int) $this->modx->getOption('socialhub.active_default');
 
         $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
-        foreach ($clients as $key => $value){
+        if(is_array($clients)) {
+            foreach ($clients as $key => $value) {
+                if (empty($value['token']) || !isset($value['token'])) {
+                    $instagramCode = $value['code'];
+                    $this->instagramClientId = $this->modx->getOption('socialhub.instagram_client_id');
+                    $instagramClientSecret = $this->modx->getOption('socialhub.instagram_client_secret');
+
+                    if (!empty($instagramCode) && !empty($this->instagramClientId) && !empty($instagramClientSecret)) {
+                        $fields = [
+                            'client_id' => trim($this->instagramClientId),
+                            'client_secret' => trim($instagramClientSecret),
+                            'redirect_uri' => INSTAGRAM_REDIRECT_URI . '?user=' . trim($key),
+                            'grant_type' => 'authorization_code',
+                            'code' => $instagramCode
+                        ];
+
+                        $url = 'https://api.instagram.com/oauth/access_token';
+                        $response = $this->callApiPost($url, $fields);
+
+                        if ($response['code'] == 400) {
+                            $clients[$key]['code'] = '';
+                            $this->log($response['error_message'], 'error');
+                            $this->log($fields['redirect_uri'], 'notice');
 
 
-            if(empty($value['token']) || !isset($value['token'])){
-                $instagramCode           = $value['code'];
-                $this->instagramClientId = $this->modx->getOption('socialhub.instagram_client_id');
-                $instagramClientSecret   = $this->modx->getOption('socialhub.instagram_client_secret');
+                        }
 
-                if (!empty($instagramCode) && !empty($this->instagramClientId) && !empty($instagramClientSecret)) {
-                    $fields = array(
-                        'client_id'     => trim($this->instagramClientId),
-                        'client_secret' => trim($instagramClientSecret),
-                        'redirect_uri'  => INSTAGRAM_REDIRECT_URI . '?user='.trim($key),
-                        'grant_type'    => 'authorization_code',
-                        'code'          => $instagramCode
-                    );
-
-                    $url      = 'https://api.instagram.com/oauth/access_token';
-                    $response = $this->callApiPost($url, $fields);
-
-                    if($response['code'] == 400){
-                        $clients[$key]['code'] = '';
-                        $this->log($response['error_message'], 'error');
-                        $this->log($fields['redirect_uri'], 'notice');
-
-
-                    }
-
-                    if (!isset($response['code']) && isset($response['access_token'])) {
-                        $user = $response['user']['id'];
-                        $clients[$user]['token'] = $response['access_token'];
-                        $clients[$user]['code'] = '';
+                        if (!isset($response['code']) && isset($response['access_token'])) {
+                            $user = $response['user']['id'];
+                            $clients[$user]['token'] = $response['access_token'];
+                            $clients[$user]['code'] = '';
+                        }
                     }
                 }
             }
-        }
 
-        /* Code can only be used once, so clear code system setting */
-        $save = $this->saveSystemSetting('socialhub.instagram_json', json_encode($clients, JSON_UNESCAPED_UNICODE));
-        //$cm = $this->modx->getCacheManager();
-        //$cm->refresh(['system_settings' => ['key'=>'socialhub.instagram_json']]);
-        //$clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
 
-        foreach ($clients as $key => $value) {
-            if (!empty($value['token'])) {
-                $this->importInstagram($value['token'], $value['tags'], $value['username']);
-            } elseif (!empty($this->instagramClientId) && !empty($instagramClientSecret)) {
-                $this->log('Could not import Instagram, please specify a valid Instagram code.', 'notice');
+            /* Code can only be used once, so clear code system setting */
+            $save = $this->saveSystemSetting('socialhub.instagram_json', json_encode($clients, JSON_UNESCAPED_UNICODE));
+            //$cm = $this->modx->getCacheManager();
+            //$cm->refresh(['system_settings' => ['key'=>'socialhub.instagram_json']]);
+            //$clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
+
+            foreach ($clients as $key => $value) {
+                if (!empty($value['token'])) {
+                    $this->importInstagram($value['token'], $value['tags'], $value['username']);
+                } elseif (!empty($this->instagramClientId) && !empty($instagramClientSecret)) {
+                    $this->log('Could not import Instagram, please specify a valid Instagram code.', 'notice');
+                }
             }
+            /** Check if access token is already set, then import Instagram. */
         }
-        /** Check if access token is already set, then import Instagram. */
         $publicToken = $this->modx->getOption('socialhub.instagram_accesstoken');
         $tags = $this->modx->getOption('socialhub.instagram_search_query');
         $this->importInstagram($publicToken, $tags, '' );
