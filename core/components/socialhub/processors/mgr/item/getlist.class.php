@@ -8,8 +8,8 @@
 class SocialHubItemGetListProcessor extends modObjectGetListProcessor {
     public $classKey = 'SocialHubItem';
     public $languageTopics = array('socialhub:default');
-    public $defaultSortField = 'id';
-    public $defaultSortDirection = 'ASC';
+    public $defaultSortField = 'date';
+    public $defaultSortDirection = 'DESC';
     public $objectType = 'socialhub.item';
 
     public function prepareQueryBeforeCount(xPDOQuery $c)
