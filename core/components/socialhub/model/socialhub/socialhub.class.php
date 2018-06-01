@@ -261,48 +261,44 @@ class SocialHub
         $this->activeDefaultValue   = (int) $this->modx->getOption('socialhub.active_default');
 
         $clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
-        foreach ($clients as $key => $value){
+        if(is_array($clients)) {
+            foreach ($clients as $key => $value) {
+                if (empty($value['token']) || !isset($value['token'])) {
+                    $instagramCode = $value['code'];
+                    $this->instagramClientId = $this->modx->getOption('socialhub.instagram_client_id');
+                    $instagramClientSecret = $this->modx->getOption('socialhub.instagram_client_secret');
+
+                    if (!empty($instagramCode) && !empty($this->instagramClientId) && !empty($instagramClientSecret)) {
+                        $fields = [
+                            'client_id' => trim($this->instagramClientId),
+                            'client_secret' => trim($instagramClientSecret),
+                            'redirect_uri' => INSTAGRAM_REDIRECT_URI . '?user=' . trim($key),
+                            'grant_type' => 'authorization_code',
+                            'code' => $instagramCode
+                        ];
+
+                        $url = 'https://api.instagram.com/oauth/access_token';
+                        $response = $this->callApiPost($url, $fields);
+
+                        if ($response['code'] == 400) {
+                            $clients[$key]['code'] = '';
+                            $this->log($response['error_message'], 'error');
+                            $this->log($fields['redirect_uri'], 'notice');
 
 
-            if(empty($value['token']) || !isset($value['token'])){
-                $instagramCode           = $value['code'];
-                $this->instagramClientId = $this->modx->getOption('socialhub.instagram_client_id');
-                $instagramClientSecret   = $this->modx->getOption('socialhub.instagram_client_secret');
+                        }
 
-                if (!empty($instagramCode) && !empty($this->instagramClientId) && !empty($instagramClientSecret)) {
-                    $fields = array(
-                        'client_id'     => trim($this->instagramClientId),
-                        'client_secret' => trim($instagramClientSecret),
-                        'redirect_uri'  => INSTAGRAM_REDIRECT_URI . '?user='.trim($key),
-                        'grant_type'    => 'authorization_code',
-                        'code'          => $instagramCode
-                    );
-
-                    $url      = 'https://api.instagram.com/oauth/access_token';
-                    $response = $this->callApiPost($url, $fields);
-
-                    if($response['code'] == 400){
-                        $clients[$key]['code'] = '';
-                        $this->log($response['error_message'], 'error');
-                        $this->log($fields['redirect_uri'], 'notice');
-
-
-                    }
-
-                    if (!isset($response['code']) && isset($response['access_token'])) {
-                        $user = $response['user']['id'];
-                        $clients[$user]['token'] = $response['access_token'];
-                        $clients[$user]['code'] = '';
+                        if (!isset($response['code']) && isset($response['access_token'])) {
+                            $user = $response['user']['id'];
+                            $clients[$user]['token'] = $response['access_token'];
+                            $clients[$user]['code'] = '';
+                        }
                     }
                 }
             }
         }
-
         /* Code can only be used once, so clear code system setting */
         $save = $this->saveSystemSetting('socialhub.instagram_json', json_encode($clients, JSON_UNESCAPED_UNICODE));
-        //$cm = $this->modx->getCacheManager();
-        //$cm->refresh(['system_settings' => ['key'=>'socialhub.instagram_json']]);
-        //$clients = $this->modx->fromJson($this->modx->getOption('socialhub.instagram_json'));
 
         foreach ($clients as $key => $value) {
             if (!empty($value['token'])) {
@@ -682,6 +678,11 @@ class SocialHub
                     $media = '';
                     if (isset($post->status_type) && $post->status_type == 'added_photos') {
                         $media = 'https://graph.facebook.com/' . $post->object_id . '/picture?type=normal';
+                    }elseif ($post->type=='photo'){
+                        $media = 'https://graph.facebook.com/' . $post->object_id . '/picture?type=normal';
+                    }
+                    if($post->status_type == 'shared_story' && isset($post->link)){
+                        $media = $this->getFrontImage($post->link);
                     }
 
                     $item = array(
@@ -995,5 +996,26 @@ class SocialHub
         $responseArray = $this->modx->fromJSON($response);
 
         return $responseArray;
+    }
+
+    function getFrontImage($url)
+    {
+        libxml_use_internal_errors(true);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0');
+        curl_setopt($ch, CURLOPT_ENCODING , "gzip");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        $page_content = curl_exec($ch);
+        $dom_obj = new DOMDocument();
+        $dom_obj->loadHTML($page_content);
+        $meta_val = null;
+        foreach($dom_obj->getElementsByTagName('meta') as $meta) {
+            if($meta->getAttribute('property')=='og:image'){
+                $meta_val = $meta->getAttribute('content');
+            }
+        }
+        return $meta_val;
     }
 }
