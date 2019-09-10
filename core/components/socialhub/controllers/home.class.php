@@ -28,7 +28,7 @@ class SocialHubHomeManagerController extends SocialHubBaseManagerController
             $out = [];
             foreach ($insta as $key => $value) {
                 if (empty($value['token'])) {
-                    $uri = $su . "assets/components/socialhub/getinstagramcode.php?user={$key}&response_type=code&scope=public_content";
+                    $uri = $su . "assets/components/socialhub/getinstagramcode.php?user={$key}&response_type=code&scope=basic";
                     $out[] = "<a target ='_blank' href='https://api.instagram.com/oauth/authorize/?client_id={$clientid}&redirect_uri={$uri}'>Get Instagram Token {$key}</a>";
                 }
             }
