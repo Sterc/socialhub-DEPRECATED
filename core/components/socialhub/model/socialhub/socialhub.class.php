@@ -291,6 +291,8 @@ class SocialHub
 
                     if (!isset($response['code']) && isset($response['access_token'])) {
                         $user = $response['user']['id'];
+                        $clients[$user] = $clients[trim($key)];
+                        unset($clients[trim($key)]);
                         $clients[$user]['token'] = $response['access_token'];
                         $clients[$user]['code'] = '';
                     }
